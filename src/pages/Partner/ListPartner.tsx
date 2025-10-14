@@ -1,0 +1,88 @@
+import { Button, Form, InputGroup, Table } from "react-bootstrap";
+
+export default function ListPartner() {
+    return <div>
+        <h3 className="fs-3">Đối tác</h3>
+        <div className="my-shadow border rounded-4">
+            <div className="  m-2 px-2 mt-3" >
+                <div className="row p-0 m-0">
+                    <div className="col-1 col-md-5 m-0 p-0">
+                        <p className="fs-5 fw-bold d-none d-md-block">Danh sách đối tác</p>
+                    </div>
+                    <div className="col-11 col-md-7 m-0 p-0 fs-5">
+                        <InputGroup >
+                            <Form.Control
+                                placeholder="Search...."
+                                aria-label="Recipient's username"
+                                aria-describedby="basic-addon2"
+                            />
+                            <Button variant="light" id="button-addon2" className="rounded-end border border-2">
+                                <i className="bi bi-search"></i>
+                            </Button>
+                        </InputGroup>
+                    </div>
+                </div>
+
+            </div>
+            <div className="bg-secondary p-3 rounded-4 my-shadow">
+                <Table bordered variant="secondary" className="">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên doanh nghiệp</th>
+                            <th>Sđt</th>
+                            <th>Mô hình</th>
+                            <th>Đánh giá</th>
+                            <th>Đánh giá chung</th>
+                            <th>Hồ sơ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {/* 👇 Gộp 2 hàng dọc cho cột đầu tiên */}
+                        <tr>
+                            <td rowSpan={2} className="align-middle text-center fw-bold">01</td>
+                            <td rowSpan={2} className="align-middle text-center">f88</td>
+
+                            <td>0987654321</td>
+                            <td>bóng đá</td>
+                            <td className="text-warning text-center align-middle">
+                                <div className="stars">
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                </div>
+                            </td>
+
+                            <td rowSpan={2} className="text-warning text-center align-middle">
+                                <div className="stars">
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                </div>
+                            </td>
+                            <td rowSpan={2} className="align-middle text-center">Hồ sơ</td>
+                        </tr>
+
+                        <tr>
+                            <td>0987654321</td>
+                            <td>Cầu lông</td>
+                            <td className="text-warning text-center align-middle">
+                                <div className="stars">
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                    <i className="bi bi-star-fill"></i>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </Table>
+            </div>
+        </div>
+    </div>
+}

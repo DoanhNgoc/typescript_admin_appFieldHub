@@ -1,0 +1,90 @@
+$primary: rgba(225, 242, 255, 1);
+$info :#f0542b;
+$background: #CEE9FF;
+
+.no-caret .dropdown-toggle::after {
+    display: none !important;
+}
+
+
+
+
+.no-caret .dropdown-toggle {
+    border-radius: 50% !important;
+    /* bo tròn */
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.no-caret .dropdown-toggle:hover {
+    background-color: #444 !important;
+    /* màu nền khi hover */
+}
+
+
+.accordion-button {
+    background-color: #212529 !important;
+    /* bg-dark */
+    color: $primary !important;
+    /* text-light */
+    font-size: 1.25rem !important;
+    /* fs-5 */
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #212529 !important;
+    color: $primary !important;
+    box-shadow: none;
+}
+
+.accordion-item {
+    background-color: #212529 !important;
+    border: none !important;
+}
+
+.accordion-body {
+    background-color: #212529 !important;
+    color: $primary !important;
+    font-size: 1.25rem !important;
+    /* fs-5 cho body luôn nếu muốn */
+}
+
+
+
+
+@import "bootstrap/scss/bootstrap";
+
+.border-blue {
+    border-color: rgba(0, 0, 255, 1) !important; // màu xanh tùy chỉnh
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+}
+
+.border-aqua {
+    border-color: rgba(30, 235, 235, 1) !important;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+}
+
+.border-red {
+    border-color: #FF0000 !important;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+}
+
+.border-yellow {
+    border-color: #E5E51D !important;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    background-color: #CEE9FF;
+}
+
+// ---- custom SCSS bên dưới ----
+
+
+.my-shadow {
+    box-shadow: 0 0 10px 15px rgba(0, 0, 0, 0.25);
+}
