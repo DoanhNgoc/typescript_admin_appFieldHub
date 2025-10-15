@@ -5,6 +5,8 @@ import { database } from "../../hooks/database";
 import BookingCount from "../../components/BookingCount";
 export default function ListCustomer({ onSelectProfile }: { onSelectProfile: (user: any) => void }) {
     const [users, setUsers] = useState<any[]>([]);
+    const [searchValue, setSearchValue] = useState("");
+    const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
     //fetch all customer 
     const fetchData = async () => {
         try {
@@ -43,6 +45,7 @@ export default function ListCustomer({ onSelectProfile }: { onSelectProfile: (us
             const customers = normalizedUsers.filter(u => u.role_id === customerRole?.id.toString());
             console.log("role:", customerRole);
             setUsers(customers);
+            setFilteredUsers(customers);
         } catch (err) {
             console.log("error:", err);
         }
@@ -51,13 +54,18 @@ export default function ListCustomer({ onSelectProfile }: { onSelectProfile: (us
     useEffect(() => {
         fetchData();
     }, []);
-
+    // Khi gõ vào ô search -> lọc realtime
+    const handleSearch = (value: string) => {
+        setSearchValue(value);
+        const filtered = users.filter(user =>
+            user.phone?.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredUsers(filtered);
+    };
     return <div>
         <h3 className="fs-3">Danh sách khách hàng</h3>
-        <pre>
-            {JSON.stringify(users, null, 2)}
-        </pre>
-        <div className="my-shadow border rounded-4">
+
+        <div className="my-shadow border rounded-4 mt-3">
             <div className="  m-2 px-2 mt-3" >
                 <div className="row p-0 m-0">
                     <div className="col-1 col-md-5 m-0 p-0">
@@ -67,8 +75,8 @@ export default function ListCustomer({ onSelectProfile }: { onSelectProfile: (us
                         <InputGroup >
                             <Form.Control
                                 placeholder="Search...."
-                                aria-label="Recipient's username"
-                                aria-describedby="basic-addon2"
+                                value={searchValue}
+                                onChange={(e) => handleSearch(e.target.value)}
                             />
                             <Button variant="light" id="button-addon2" className="rounded-end border border-2">
                                 <i className="bi bi-search"></i>
@@ -91,21 +99,36 @@ export default function ListCustomer({ onSelectProfile }: { onSelectProfile: (us
                         </tr>
                     </thead>
                     <tbody className="text-center">
-                        {users.length === 0 ? (
+                        {filteredUsers.length === 0 ? (
                             <tr>
                                 <td colSpan={6}>
-                                    <Spinner animation="border" variant="info" />
+                                    {users.length === 0 ? (
+                                        <Spinner animation="border" variant="info" />
+                                    ) : (
+                                        "Không tìm thấy khách hàng nào"
+                                    )}
                                 </td>
                             </tr>
-                        ) : (users.map((item, key) => <tr key={key}>
-                            <td>{key + 1}</td>
-                            <td>{item.name || "no name"}</td>
-                            <td>{item.phone || "no phone"}</td>
-                            <td>{item.email || "no mail"}</td>
-                            <td><BookingCount userId={item.id} /></td>
-                            <td><Button variant="outline-dark" className="fw-bold" onClick={() => onSelectProfile(item)}>Hồ sơ</Button></td>
-                        </tr>))}
-
+                        ) : (
+                            filteredUsers.map((item, key) => (
+                                <tr key={key}>
+                                    <td>{key + 1}</td>
+                                    <td>{item.name || "no name"}</td>
+                                    <td>{item.phone || "no phone"}</td>
+                                    <td>{item.email || "no mail"}</td>
+                                    <td><BookingCount userId={item.id} /></td>
+                                    <td>
+                                        <Button
+                                            variant="outline-dark"
+                                            className="fw-bold"
+                                            onClick={() => onSelectProfile(item)}
+                                        >
+                                            Hồ sơ
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
 
                     </tbody>
                 </Table>

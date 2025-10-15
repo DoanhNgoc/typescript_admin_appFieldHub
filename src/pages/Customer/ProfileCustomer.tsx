@@ -1,27 +1,30 @@
 import dayjs from "dayjs";
-import { Button, Col, Container, Image, Row } from "react-bootstrap";
+import { Col, Container, Image, Row, Spinner, Table } from "react-bootstrap";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import useUserBookings from "../../hooks/useUserBookings";
 
+import FormatDate from "../../components/FormatDate";
+import FormatTimeDate from "../../components/FormatTimeDate";
+import UsevnStatus from "../../components/usevnStatus";
 dayjs.extend(customParseFormat);
 export default function ProfileCustomer({ user }: { user: any }) {
-    // //format date time in timestamp firebase
-    const formatDate = (timestamp: any) => {
-        if (!timestamp?.seconds) return null;
-        const d = new Date(timestamp.seconds * 1000);
-        return d.toLocaleDateString("vi-VN"); // tự format dd/mm/yyyy
-    };
+    const { bookings, loading } = useUserBookings(user.id);
+    function formatVND(amount: number): string {
+        return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    }
+    console.log(bookings)
     return <div >
-        <div className="my-shadow rounded-4">
+        <div className="my-shadow rounded-4 pb-2">
             <div className=" p-0 m-0">
                 <div className="m-0 p-3 py-2 rounded-top-4 bg-header text-light">
                     <p className="fs-4 fw-bold m-0 p-0">Thông tin khách hàng</p>
                 </div>
-                <div className=" m-0  fs-5  fw-bold">
-                    <div className=" border-bottom border-dark p-3">
+                <div className=" m-0  fs-5  ">
+                    <div className=" border-bottom border-dark p-3 fw-bold">
                         <div className="d-flex row  align-items-top justify-content-between">
                             <div className="col-6 col-lg-4">
                                 <p>Tên: {user.name || "no mail"}</p>
-                                <p>Ngày sinh: {formatDate(user.dob) || ".. / .. /...."}</p>
+                                <p>Ngày sinh: {user.dob !== null ? <FormatDate timestamp={user.dob} /> : ".. / .. /...."}</p>
                                 <p>Giới tính: {user.gender !== "" ? user.gender : "Nam/Nữ"}</p>
                                 <p>Email: {user.email || "no mail"}</p>
                                 <p className="d-block d-lg-none">phone: {user.phone}</p>
@@ -43,8 +46,54 @@ export default function ProfileCustomer({ user }: { user: any }) {
                             </div>
                         </div>
                     </div>
-                    <div className="history_order">
+                    <div className="history_order mx-3">
                         <p className="fw-bold fs-5">Lịch sữ đặt đơn</p>
+                        <div className="text-center">
+                            {loading && bookings.length == 0 ?
+                                <Spinner animation="border" variant="info" />
+                                :
+                                <div>
+                                    <Table striped bordered hover size="sm">
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Tên sân</th>
+                                                <th>Mô hình</th>
+                                                <th>Ngày đặt</th>
+                                                <th>Giờ bắt đầu</th>
+                                                <th>Giờ kết thúc</th>
+                                                <th>Trạng thái</th>
+                                                <th>Giá</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="fw-normal">
+                                            {bookings.length === 0
+                                                ?
+                                                <tr>
+                                                    <td colSpan={8} className="text-center ">
+                                                        Hiện tại chưa có đơn đặt từ khách hàng
+                                                    </td>
+                                                </tr>
+                                                : (bookings.map((item, key) => <tr key={key}>
+                                                    <td>{key + 1}</td>
+                                                    <td>{item.field.name}</td>
+                                                    <td>{item.sport.name}</td>
+                                                    <td className="lh-sm">{item.booking_date !== null ? <FormatTimeDate timestamp={item.booking_date} /> : "no time"}</td>
+                                                    <td>{item.start_time !== null ? <FormatTimeDate timestamp={item.start_time} /> : "no time"}</td>
+                                                    <td>{item.end_time !== null ? <FormatTimeDate timestamp={item.end_time} /> : "no time"}</td>
+                                                    <td>{item.status !== "" ? <UsevnStatus status={item.status.name} /> : "no status"}</td>
+                                                    <td>{item.price_amount !== null ? formatVND(item.price_amount) : "no price"}</td>
+                                                </tr>))
+
+
+
+
+                                            }
+
+                                        </tbody>
+                                    </Table>
+                                </div>}
+                        </div>
                     </div>
                 </div>
             </div>
