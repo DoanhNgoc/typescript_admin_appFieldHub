@@ -10,6 +10,7 @@ import Violate from "../pages/Partner/ContractContent/Violate";
 import InforContract from "../pages/Partner/ContractContent/InforContract";
 import ListCustomer from "../pages/Customer/ListCustomer";
 import CustomerService from "../pages/Customer/CustomerService";
+import ProfileCustomer from "../pages/Customer/ProfileCustomer";
 import { useLocation } from "react-router-dom";
 
 
@@ -19,6 +20,9 @@ export default function MainLayout() {
     const [activePage, setActivePage] = useState<string>("HomeDashboard");
     const location = useLocation();
     const user = location.state?.user;
+
+    //profile 
+    const [selectedUser, setSelectedUser] = useState<any>(null);
     //render click content from controller
     const renderContent = () => {
         switch (activePage) {
@@ -47,10 +51,15 @@ export default function MainLayout() {
             //customer
             //-->list customer
             case "ListCustomer":
-                return <ListCustomer />
+                return <ListCustomer onSelectProfile={(user) => {
+                    setSelectedUser(user);
+                    setActivePage("ProfileCustomer");
+                }} />
             //-->customer service
             case "CustomerService":
                 return <CustomerService />
+            case "ProfileCustomer":
+                return <ProfileCustomer user={selectedUser} />;
         }
     }
     return <div>

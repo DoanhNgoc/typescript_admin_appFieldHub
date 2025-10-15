@@ -1,8 +1,62 @@
+import { useEffect, useState } from "react";
 import { Button, Form, InputGroup, Table } from "react-bootstrap";
+import { database } from "../../hooks/database";
 
 export default function ListPartner() {
+    const [users, setUsers] = useState<any[]>([]);
+    const [fields, setFields] = useState<any[]>([]);
+    const fetchData = async () => {
+        try {
+            const usersData = await database("users");
+            const rolesData = await database("roles");
+            const fieldsData = await database('fields');
+            // Chuẩn hoá role_id để lấy được ID thật (vd: "roles/3" => "3")
+            const normalizedUsers = usersData.map((user: any) => {
+                let roleId = null;
+
+                // Nếu là DocumentReference thật (Firestore)
+                if (user.role_id && typeof user.role_id === "object") {
+                    // ưu tiên lấy .id (nếu có)
+                    if ("id" in user.role_id) {
+                        roleId = user.role_id.id;
+                    }
+                    // fallback nếu chỉ có .path (vd: "roles/2")
+                    else if ("path" in user.role_id) {
+                        roleId = user.role_id.path.split("/").pop();
+                    }
+                    // hoặc referencePath (trường hợp m tự serialize ra)
+                    else if ("referencePath" in user.role_id) {
+                        roleId = user.role_id.referencePath.split("/").pop();
+                    }
+                }
+
+                // nếu Firestore trả về string (trường hợp JSON export)
+                if (!roleId && typeof user.role_id === "string") {
+                    roleId = user.role_id.split("/").pop();
+                }
+
+                return { ...user, role_id: roleId };
+            });
+
+            // Lọc ra role có name = 'owner'
+            const ownerRole = rolesData.find((r: any) => r.name?.toLowerCase() === "owner");
+            const owners = normalizedUsers.filter(u => u.role_id === "2");
+            console.log("🔥 Owner users:", owners);
+            setFields(fieldsData);
+            setUsers(owners);
+        } catch (err) {
+            console.log("error:", err);
+        }
+    };
+    //fetch all users from firebase
+    useEffect(() => {
+        fetchData();
+    }, []);
     return <div>
         <h3 className="fs-3">Đối tác</h3>
+        <pre>
+            {JSON.stringify(users, null, 2)}
+        </pre>
         <div className="my-shadow border rounded-4">
             <div className="  m-2 px-2 mt-3" >
                 <div className="row p-0 m-0">
@@ -24,9 +78,9 @@ export default function ListPartner() {
                 </div>
 
             </div>
-            <div className="bg-secondary p-3 rounded-4 my-shadow">
-                <Table bordered variant="secondary" className="">
-                    <thead>
+            <div className="m-0 p-0">
+                <Table bordered variant="secondary" className="m-0 p-0 mb-3">
+                    <thead className="text-center">
                         <tr>
                             <th>STT</th>
                             <th>Tên doanh nghiệp</th>
@@ -38,7 +92,7 @@ export default function ListPartner() {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* 👇 Gộp 2 hàng dọc cho cột đầu tiên */}
+
                         <tr>
                             <td rowSpan={2} className="align-middle text-center fw-bold">01</td>
                             <td rowSpan={2} className="align-middle text-center">f88</td>
