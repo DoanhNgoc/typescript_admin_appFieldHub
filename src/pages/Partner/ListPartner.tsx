@@ -55,7 +55,7 @@ export default function ListPartner() {
     return <div>
         <h3 className="fs-3">Đối tác</h3>
         <pre>
-            {JSON.stringify(users, null, 2)}
+            {JSON.stringify(fields, null, 2)}
         </pre>
         <div className="my-shadow border rounded-4">
             <div className="  m-2 px-2 mt-3" >
@@ -86,6 +86,7 @@ export default function ListPartner() {
                             <th>Tên doanh nghiệp</th>
                             <th>Sđt</th>
                             <th>Mô hình</th>
+                            <th>Số Lượng</th>
                             <th>Đánh giá</th>
                             <th>Đánh giá chung</th>
                             <th>Hồ sơ</th>
@@ -99,6 +100,7 @@ export default function ListPartner() {
 
                             <td>0987654321</td>
                             <td>bóng đá</td>
+                            <td>3</td>
                             <td className="text-warning text-center align-middle">
                                 <div className="stars">
                                     <i className="bi bi-star-fill"></i>
@@ -124,6 +126,7 @@ export default function ListPartner() {
                         <tr>
                             <td>0987654321</td>
                             <td>Cầu lông</td>
+                            <td>6</td>
                             <td className="text-warning text-center align-middle">
                                 <div className="stars">
                                     <i className="bi bi-star-fill"></i>

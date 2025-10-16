@@ -17,7 +17,7 @@ import { useLocation } from "react-router-dom";
 export default function MainLayout() {
     const [expanded, setExpanded] = useState(true) //laptop
     const [showOffcanvas, setShowOffcanvas] = useState(false); // mobile offcanvas
-    const [activePage, setActivePage] = useState<string>("HomeDashboard");
+    const [activePage, setActivePage] = useState<string>("Dashboard");
     const location = useLocation();
     const user = location.state?.user;
 

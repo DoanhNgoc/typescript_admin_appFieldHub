@@ -5,7 +5,7 @@ import useUserBookings from "../../hooks/useUserBookings";
 
 import FormatDate from "../../components/FormatDate";
 import FormatTimeDate from "../../components/FormatTimeDate";
-import UsevnStatus from "../../components/usevnStatus";
+import UsevnStatus from "../../components/UsevnStatus";
 dayjs.extend(customParseFormat);
 export default function ProfileCustomer({ user }: { user: any }) {
     const { bookings, loading } = useUserBookings(user.id);
@@ -80,14 +80,11 @@ export default function ProfileCustomer({ user }: { user: any }) {
                                                     <td>{item.sport.name}</td>
                                                     <td className="lh-sm">{item.booking_date !== null ? <FormatTimeDate timestamp={item.booking_date} /> : "no time"}</td>
                                                     <td>{item.start_time !== null ? <FormatTimeDate timestamp={item.start_time} /> : "no time"}</td>
+
                                                     <td>{item.end_time !== null ? <FormatTimeDate timestamp={item.end_time} /> : "no time"}</td>
                                                     <td>{item.status !== "" ? <UsevnStatus status={item.status.name} /> : "no status"}</td>
                                                     <td>{item.price_amount !== null ? formatVND(item.price_amount) : "no price"}</td>
                                                 </tr>))
-
-
-
-
                                             }
 
                                         </tbody>
