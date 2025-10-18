@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCollectionData } from "./useCollectionData";
 import { getDocDataFromRef } from "./firestoreUtils";
-import { doc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 export default function useUserBookings(userId: string) {
@@ -9,7 +9,6 @@ export default function useUserBookings(userId: string) {
     const { data: rawBookings, loading } = useCollectionData("bookings", [
         { field: "user_id", op: "==", value: doc(db, "users", userId) },
     ]);
-
     useEffect(() => {
         if (!rawBookings.length) return;
 
@@ -21,12 +20,15 @@ export default function useUserBookings(userId: string) {
 
                     const status = await getDocDataFromRef(b.status_id);
 
-                    // nếu có sport thì lấy thêm
                     let sport: any = null;
-                    if (field?.sport) {
-                        sport = await getDocDataFromRef(field.sport);
+                    if (field.sport) {
+                        // vì field.sport là id string nên tạo doc ref thủ công
+                        const sportRef = doc(db, "sports", field.sport);
+                        const sportSnap = await getDoc(sportRef);
+                        if (sportSnap.exists()) {
+                            sport = { id: sportSnap.id, ...sportSnap.data() };
+                        }
                     }
-
                     return { ...b, field, status, sport };
                 })
             );

@@ -53,7 +53,7 @@ export default function ProfileCustomer({ user }: { user: any }) {
                                 <Spinner animation="border" variant="info" />
                                 :
                                 <div>
-                                    <Table striped bordered hover size="sm">
+                                    <Table striped bordered hover size="sm ">
                                         <thead>
                                             <tr>
                                                 <th>STT</th>
@@ -70,20 +70,20 @@ export default function ProfileCustomer({ user }: { user: any }) {
                                             {bookings.length === 0
                                                 ?
                                                 <tr>
-                                                    <td colSpan={8} className="text-center ">
+                                                    <td className="" colSpan={8} >
                                                         Hiện tại chưa có đơn đặt từ khách hàng
                                                     </td>
                                                 </tr>
                                                 : (bookings.map((item, key) => <tr key={key}>
-                                                    <td>{key + 1}</td>
-                                                    <td>{item.field.name}</td>
-                                                    <td>{item.sport.name}</td>
+                                                    <td className="lh-sm">{key + 1}</td>
+                                                    <td className="lh-sm">{item.field !== null ? item.field.name : "no field"}</td>
+                                                    <td className="lh-sm">{item.sport !== null ? item.sport.name : "no sport"}</td>
                                                     <td className="lh-sm">{item.booking_date !== null ? <FormatTimeDate timestamp={item.booking_date} /> : "no time"}</td>
-                                                    <td>{item.start_time !== null ? <FormatTimeDate timestamp={item.start_time} /> : "no time"}</td>
+                                                    <td className="lh-sm">{item.start_time !== null ? <FormatTimeDate timestamp={item.start_time} /> : "no time"}</td>
 
-                                                    <td>{item.end_time !== null ? <FormatTimeDate timestamp={item.end_time} /> : "no time"}</td>
-                                                    <td>{item.status !== "" ? <UsevnStatus status={item.status.name} /> : "no status"}</td>
-                                                    <td>{item.price_amount !== null ? formatVND(item.price_amount) : "no price"}</td>
+                                                    <td className="lh-sm">{item.end_time !== null ? <FormatTimeDate timestamp={item.end_time} /> : "no time"}</td>
+                                                    <td className="lh-sm">{item.status !== "" ? <UsevnStatus status={item.status.name} /> : "no status"}</td>
+                                                    <td className="lh-sm">{item.price_amount !== null ? formatVND(item.price_amount) : "no price"}</td>
                                                 </tr>))
                                             }
 

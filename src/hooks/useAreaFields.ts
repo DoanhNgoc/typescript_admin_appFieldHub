@@ -26,7 +26,7 @@ export function useAreaFields(userId: string | null) {
 
                 setAreas(results);
             } catch (err) {
-                console.error("🔥 Lỗi khi lấy areas:", err);
+                console.error(" Lỗi khi lấy areas:", err);
             } finally {
                 setLoading(false);
             }

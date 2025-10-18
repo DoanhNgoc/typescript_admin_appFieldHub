@@ -7,7 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 function App() {
 
   return (
-    <div className="min-vh-100 w-100 m-0 p-0">
+    <div className="min-vh-100 w-100 m-0 p-0 bg-body ">
       <Router>
         <Routes>
           <Route path="/" element={<AuthLayout />} />

@@ -1,11 +1,15 @@
 $primary: rgba(225, 242, 255, 1);
 $info :#f0542b;
-$background: #CEE9FF;
 
 $success :#0000FF;
 
 .no-caret .dropdown-toggle::after {
     display: none !important;
+}
+
+.bg-body {
+    background-color: #CEE9FF;
+
 }
 
 
@@ -67,6 +71,10 @@ $header: #004E89;
 
 }
 
+:global(body) {
+    background-color: #CEE9FF !important;
+}
+
 
 
 .border-blue {
@@ -92,6 +100,7 @@ $header: #004E89;
 body {
     background-color: #CEE9FF;
 }
+
 
 // ---- custom SCSS bên dưới ----
 

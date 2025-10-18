@@ -12,7 +12,7 @@ import ListCustomer from "../pages/Customer/ListCustomer";
 import CustomerService from "../pages/Customer/CustomerService";
 import ProfileCustomer from "../pages/Customer/ProfileCustomer";
 import { useLocation } from "react-router-dom";
-
+import ProfilePartner from "../pages/Partner/ProfilePartner";
 
 export default function MainLayout() {
     const [expanded, setExpanded] = useState(true) //laptop
@@ -23,6 +23,9 @@ export default function MainLayout() {
 
     //profile 
     const [selectedUser, setSelectedUser] = useState<any>(null);
+    //profile parner
+    const [selectedPartner, setSelectedPartner] = useState<any>(null);
+
     //render click content from controller
     const renderContent = () => {
         switch (activePage) {
@@ -31,8 +34,13 @@ export default function MainLayout() {
                 return <Dashboard />;
             //partner
             case "ListPartner":
-                return <ListPartner />
-
+                return <ListPartner onSelectProfile={(user) => {
+                    setSelectedPartner(user);
+                    setActivePage("ProfilePartner");
+                }} />
+            // profile partner
+            case "ProfilePartner":
+                return <ProfilePartner user={selectedPartner} />
             //newpartner
             //-->pending approval
             case "PendingApproval":
@@ -58,47 +66,61 @@ export default function MainLayout() {
             //-->customer service
             case "CustomerService":
                 return <CustomerService />
+            // profile customer
             case "ProfileCustomer":
                 return <ProfileCustomer user={selectedUser} />;
         }
     }
-    return <div>
-        <Header setShowOffcanvas={setShowOffcanvas} setShowLaptop={setExpanded} user={user} />
-        <Container fluid>
-            <Row>
-                {/* Sidebar cho màn hình lg↑ */}
-                {expanded && (
+    return (
+        <div className="vh-100 d-flex flex-column ">
+            {/* Header cố định */}
+            <div className="sticky-top bg-white border-bottom shadow-sm">
+                <Header
+                    setShowOffcanvas={setShowOffcanvas}
+                    setShowLaptop={setExpanded}
+                    user={user}
+                />
+            </div>
+
+            <Container fluid className="flex-grow-1 ">
+                <Row className="h-100">
+                    {/* Sidebar cố định chiều cao */}
+                    {expanded && (
+                        <Col
+                            lg={2}
+                            className="bg-dark text-light border-end border-secondary d-none d-lg-flex flex-column p-2"
+                            style={{ height: "calc(100vh - 65px)", overflowY: "auto" }}
+                        >
+                            <Controller onSelectPage={setActivePage} />
+
+                        </Col>
+                    )}
+
+                    {/* Content cuộn riêng */}
                     <Col
-                        lg={2}
-                        className="bg-dark border-end border-secondary d-none d-lg-block p-2 min-vh-100"
+                        lg={expanded ? 10 : 12}
+                        className="bg-primary p-4 overflow-auto "
+                        style={{ height: "calc(100vh - 65px)" }}
                     >
-                        <Controller onSelectPage={setActivePage} />
-
+                        {renderContent()}
                     </Col>
-                )}
-
-                {/* Content */}
-                <Col className="p-4">
-                    {renderContent()}
-                </Col>
-            </Row>
-        </Container>
-
-        {/* Offcanvas cho mobile/tablet */}
-        <Offcanvas
-            show={showOffcanvas} // dùng state từ App
-            onHide={() => setShowOffcanvas(false)} // khi click close → tắt state App
-            placement="start"
-            className="bg-dark text-light d-lg-none"
-            style={{ top: "65px" }}
-        >
-            <Offcanvas.Header closeButton>
-                <Offcanvas.Title>Menu</Offcanvas.Title>
-            </Offcanvas.Header>
-            <Offcanvas.Body>
-                <Controller onSelectPage={setActivePage} />
-            </Offcanvas.Body>
-        </Offcanvas>
-    </div>
+                </Row>
+            </Container>
+            {/* Offcanvas cho mobile/tablet */}
+            <Offcanvas
+                show={showOffcanvas} // dùng state từ App
+                onHide={() => setShowOffcanvas(false)} // khi click close → tắt state App
+                placement="start"
+                className="bg-dark text-light d-lg-none"
+                style={{ top: "65px" }}
+            >
+                <Offcanvas.Header closeButton>
+                    <Offcanvas.Title>Menu</Offcanvas.Title>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <Controller onSelectPage={setActivePage} />
+                </Offcanvas.Body>
+            </Offcanvas>
+        </div>)
 }
 {/* <Controller onSelectPage={setActivePage} /> */ }
