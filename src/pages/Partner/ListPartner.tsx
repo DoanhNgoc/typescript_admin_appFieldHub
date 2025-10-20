@@ -4,7 +4,6 @@ import ItemPartner from "./ItemPartner";
 
 export default function ListPartner({ onSelectProfile }: { onSelectProfile: (user: any) => void }) {
     const { owners: approvedOwners, loading } = useOwnersByStatus(["approved"]);
-    console.log(approvedOwners)
 
 
     return (

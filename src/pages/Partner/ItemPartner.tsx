@@ -15,7 +15,7 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile }: valu
         </td>
     </tr>;
     if (error) return <tr>
-        <td colSpan={8} className="text-center">
+        <td colSpan={8} className="text-center align-middle">
             <Alert variant={"danger"} className="text-start">
                 {String(error)}
             </Alert>
@@ -63,9 +63,9 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile }: valu
                     </td>
                 )}
 
-                <td>{sport.fields[0]?.phone || "Chưa có SĐT"}</td>
-                <td>{sport.sportDoc?.name || "Không xác định"}</td>
-                <td>{sport.count}</td>
+                <td className="align-middle">{sport.fields[0]?.phone || "Chưa có SĐT"}</td>
+                <td className="align-middle">{sport.sportDoc?.name || "Không xác định"}</td>
+                <td className="align-middle">{sport.count}</td>
                 <td className="text-warning text-center align-middle">
                     <div className="stars">
                         <i className="bi bi-star-fill"></i>

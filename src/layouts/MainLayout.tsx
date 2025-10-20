@@ -47,7 +47,10 @@ export default function MainLayout() {
                 return <PendingApproval />
             //-->refuse
             case "Refuse":
-                return <Refuse />
+                return <Refuse onSelectProfile={(user) => {
+                    setSelectedPartner(user);
+                    setActivePage("ProfilePartner");
+                }} />
 
             //violate
             case "Violate":
