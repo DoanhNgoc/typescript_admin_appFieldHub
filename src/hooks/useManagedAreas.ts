@@ -18,6 +18,13 @@ export type SportBucket = {
   sportDoc?: AnyObject | null;
   fields: AnyObject[];
   count: number;
+  address?: string;
+};
+// Định nghĩa type cho area
+type AreaData = {
+  id: string;
+  address?: string;
+  [key: string]: any;
 };
 
 export function useManagedAreas(userId: string | null) {
@@ -44,7 +51,7 @@ export function useManagedAreas(userId: string | null) {
       }
 
       try {
-        // 0️⃣ lấy user doc (nếu cần hiển thị thông tin user)
+        // lấy user doc (nếu cần hiển thị thông tin user)
         try {
           const userRef = doc(db, "users", userId);
           const userSnap = await getDoc(userRef);
@@ -71,7 +78,11 @@ export function useManagedAreas(userId: string | null) {
           ...snap2.docs.filter((d) => !snap1.docs.some((s) => s.id === d.id)), // tránh duplicate
         ];
 
-        const areaData = areaDocs.map((d) => ({ id: d.id, ...d.data() }));
+        const areaData: AreaData[] = areaDocs.map((d) => {
+          const data = d.data() as AreaData;
+          const { id: _ignored, ...rest } = data; // ⚡ tránh trùng id
+          return { id: d.id, ...rest };
+        });
         if (!mounted) return;
         setAreas(areaData);
 
@@ -139,14 +150,36 @@ export function useManagedAreas(userId: string | null) {
           };
         }
 
-        // populate fields into buckets
+        // populate fields into buckets + thêm địa chỉ area
         fieldsResults.forEach((f) => {
           const s = String(f.sport || "unknown");
+
+          // 🔹 tìm area tương ứng
+          const areaRefPath =
+            typeof f.area_id === "string"
+              ? f.area_id
+              : f.area_id?.path || f.area_id?.referencePath || "";
+          const areaId = areaRefPath.replace("areas/", "");
+          const area = areaData.find((a) => a.id === areaId);
+          const address = area?.address || "Không xác định";
+
+          // 🔹 gắn address vào field
+          const fieldWithAddress = { ...f, address };
+
           if (!sportsMapTemp[s]) {
-            sportsMapTemp[s] = { sportId: s, sportDoc: null, fields: [f], count: 1 };
+            sportsMapTemp[s] = {
+              sportId: s,
+              sportDoc: null,
+              fields: [fieldWithAddress],
+              count: 1,
+              address, // thêm cấp sport luôn
+            } as SportBucket & { address?: string };
           } else {
-            sportsMapTemp[s].fields.push(f);
+            sportsMapTemp[s].fields.push(fieldWithAddress);
             sportsMapTemp[s].count = sportsMapTemp[s].fields.length;
+
+            // nếu sport chưa có address thì gắn địa chỉ đầu tiên
+            if (!sportsMapTemp[s].address) sportsMapTemp[s].address = address;
           }
         });
 

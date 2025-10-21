@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+
+
 interface Props {
     user: any
 }
-export default function NotificationPartner({ user }: Props) {
+export default function CancelOfContract({ user }: Props) {
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
@@ -12,13 +14,13 @@ export default function NotificationPartner({ user }: Props) {
 
     return (
         <>
-            <Button variant="success" onClick={handleShow} className='fw-bold m-1'>
-                Thông báo
+            <Button variant="danger" onClick={handleShow} className='fw-bold m-1'>
+                Hủy hợp đồng
             </Button>
 
             <Modal show={show} onHide={handleClose} animation={false} centered>
                 <Modal.Header closeButton className='bg-header text-light'>
-                    <Modal.Title>Thông Báo {user.nameStore}</Modal.Title>
+                    <Modal.Title>Hủy hợp tác với {user.nameStore}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
 
@@ -32,5 +34,6 @@ export default function NotificationPartner({ user }: Props) {
                     </Button>
                 </Modal.Footer>
             </Modal>
-        </>)
+        </>
+    );
 }

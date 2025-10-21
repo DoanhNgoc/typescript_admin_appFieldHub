@@ -91,7 +91,7 @@ export default function Refuse({ onSelectProfile }: RefuseProps) {
                                                 <td className="align-middle">
                                                     <Button
                                                         variant="outline-dark"
-                                                        onClick={() => onSelectProfile(item.id)}
+                                                        onClick={() => onSelectProfile(item)}
 
                                                     >
                                                         <span className="d-block">Hồ sơ</span>

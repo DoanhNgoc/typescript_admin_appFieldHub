@@ -3,9 +3,10 @@ import { useManagedAreas } from "../../hooks/useManagedAreas";
 interface value {
     user_id: string
     keyValue: number
-    onSelectProfile: (user: any) => void
+    approvedOwners: any
+    onSelectProfile: (user: any[], sportsArray: any) => void
 }
-export default function ItemPartner({ user_id, keyValue, onSelectProfile }: value) {
+export default function ItemPartner({ user_id, keyValue, onSelectProfile, approvedOwners }: value) {
     const { user, sportsMap, loading, error } = useManagedAreas(user_id);
 
 
@@ -38,7 +39,7 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile }: valu
                     <Button
                         variant="outline-dark"
                         className="fw-bold"
-                        onClick={() => onSelectProfile([...sportsArray])}
+                        onClick={() => onSelectProfile([user], [...sportsArray])}
                     >
                         Hồ sơ
                     </Button>
@@ -92,7 +93,7 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile }: valu
                             <Button
                                 variant="outline-dark"
                                 className="fw-bold"
-                                onClick={() => onSelectProfile(sportsArray)}
+                                onClick={() => onSelectProfile(approvedOwners, sportsArray)}
                             >
                                 Hồ sơ
                             </Button>

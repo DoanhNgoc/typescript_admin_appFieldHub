@@ -25,7 +25,8 @@ export default function MainLayout() {
     const [selectedUser, setSelectedUser] = useState<any>(null);
     //profile parner
     const [selectedPartner, setSelectedPartner] = useState<any>(null);
-
+    //sports array
+    const [sportsArray, setSportsArray] = useState<any>(null)
     //render click content from controller
     const renderContent = () => {
         switch (activePage) {
@@ -34,13 +35,14 @@ export default function MainLayout() {
                 return <Dashboard />;
             //partner
             case "ListPartner":
-                return <ListPartner onSelectProfile={(user) => {
+                return <ListPartner onSelectProfile={(user, sportsArray) => {
                     setSelectedPartner(user);
+                    setSportsArray(sportsArray);
                     setActivePage("ProfilePartner");
                 }} />
             // profile partner
             case "ProfilePartner":
-                return <ProfilePartner user={selectedPartner} />
+                return <ProfilePartner user={selectedPartner} sportsArray={sportsArray} />
             //newpartner
             //-->pending approval
             case "PendingApproval":
