@@ -183,6 +183,7 @@ export function useManagedAreas(userId: string | null) {
           }
         });
 
+
         // fetch sports docs in parallel
         await Promise.all(
           sportIds.map(async (sportId) => {

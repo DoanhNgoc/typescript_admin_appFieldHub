@@ -9,27 +9,55 @@ export default function useUserBookings(userId: string) {
     const { data: rawBookings, loading } = useCollectionData("bookings", [
         { field: "user_id", op: "==", value: doc(db, "users", userId) },
     ]);
+
     useEffect(() => {
-        if (!rawBookings.length) return;
+        if (!rawBookings?.length) return;
 
         const fetchRefs = async () => {
             const resolved = await Promise.all(
                 rawBookings.map(async (b) => {
-                    // ép kiểu field về dạng có thể có sport
-                    const field: any = await getDocDataFromRef(b.field_id);
-
-                    const status = await getDocDataFromRef(b.status_id);
-
+                    let field: any = null;
                     let sport: any = null;
-                    if (field.sport) {
-                        // vì field.sport là id string nên tạo doc ref thủ công
-                        const sportRef = doc(db, "sports", field.sport);
-                        const sportSnap = await getDoc(sportRef);
-                        if (sportSnap.exists()) {
-                            sport = { id: sportSnap.id, ...sportSnap.data() };
+                    let status: any = null;
+
+                    // ✅ FIELD
+                    if (b.field_id) {
+                        if (typeof b.field_id === "string") {
+                            const fieldSnap = await getDoc(doc(db, "fields", b.field_id));
+                            field = fieldSnap.exists() ? { id: fieldSnap.id, ...fieldSnap.data() } : null;
+                        } else {
+                            field = await getDocDataFromRef(b.field_id);
                         }
                     }
-                    return { ...b, field, status, sport };
+
+                    // ✅ SPORT
+                    if (field?.sport) {
+                        if (typeof field.sport === "string") {
+                            const sportSnap = await getDoc(doc(db, "sports", field.sport));
+                            sport = sportSnap.exists() ? { id: sportSnap.id, ...sportSnap.data() } : null;
+                        } else {
+                            sport = await getDocDataFromRef(field.sport);
+                        }
+                    }
+
+                    // ✅ STATUS — xử lý lỗi “status/status/rejected”
+                    if (b.status_id) {
+                        if (typeof b.status_id === "string") {
+                            const parts = b.status_id.split("/");
+                            const fixedPath =
+                                parts.length > 2
+                                    ? `${parts[parts.length - 2]}/${parts[parts.length - 1]}`
+                                    : b.status_id;
+                            const statusSnap = await getDoc(
+                                doc(db, fixedPath.split("/")[0], fixedPath.split("/")[1])
+                            );
+                            status = statusSnap.exists() ? { id: statusSnap.id, ...statusSnap.data() } : null;
+                        } else {
+                            status = await getDocDataFromRef(b.status_id);
+                        }
+                    }
+
+                    return { ...b, field, sport, status };
                 })
             );
             setBookings(resolved);

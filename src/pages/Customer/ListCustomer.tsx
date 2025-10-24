@@ -112,12 +112,12 @@ export default function ListCustomer({ onSelectProfile }: { onSelectProfile: (us
                         ) : (
                             filteredUsers.map((item, key) => (
                                 <tr key={key}>
-                                    <td>{key + 1}</td>
-                                    <td>{item.name || "no name"}</td>
-                                    <td>{item.phone || "no phone"}</td>
-                                    <td>{item.email || "no mail"}</td>
-                                    <td><BookingCount userId={item.id} /></td>
-                                    <td>
+                                    <td className="align-middle">{key + 1}</td>
+                                    <td className="align-middle">{item.name || "no name"}</td>
+                                    <td className="align-middle">{item.phone || "no phone"}</td>
+                                    <td className="align-middle">{item.email || "no mail"}</td>
+                                    <td className="align-middle"><BookingCount userId={item.id} /></td>
+                                    <td className="align-middle">
                                         <Button
                                             variant="outline-dark"
                                             className="fw-bold"

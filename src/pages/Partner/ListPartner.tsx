@@ -77,17 +77,19 @@ export default function ListPartner({ onSelectProfile }: ListPartnerProps) {
                                                 : "Không có đối tác được duyệt"}
                                         </td>
                                     </tr>
-                                ) : (
-                                    filteredOwners.map((item, key) => (
-                                        <ItemPartner
-                                            key={key}
-                                            keyValue={key}
-                                            user_id={item.id}
-                                            approvedOwners={approvedOwners}
-                                            onSelectProfile={onSelectProfile}
-                                        />
-                                    ))
-                                )}
+                                )
+                                    :
+                                    (
+                                        filteredOwners.map((item, key) => (
+                                            <ItemPartner
+                                                key={key}
+                                                keyValue={key}
+                                                user_id={item.id}
+                                                approvedOwners={[item]}
+                                                onSelectProfile={onSelectProfile}
+                                            />
+                                        ))
+                                    )}
                             </tbody>
                         </Table>
                     )}
