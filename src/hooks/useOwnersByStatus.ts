@@ -20,7 +20,6 @@ export function useOwnersByStatus(allowedStatuses: string[] = []) {
     { field: "role_id", op: "==", value: "/roles/2" },
   ]);
   const { data: ownerDocs, loading: loadingDocs } = useCollectionData("owner_documents");
-  console.log("doc", ownerDocs)
   const [filteredOwners, setFilteredOwners] = useState<any[]>([]);
 
   useEffect(() => {
@@ -78,6 +77,5 @@ export function useOwnersByStatus(allowedStatuses: string[] = []) {
 
     mergeData();
   }, [users, ownerDocs, loadingUsers, loadingDocs, JSON.stringify(allowedStatuses)]);
-  console.log("owners: ", filteredOwners)
   return { owners: filteredOwners, loading: loadingUsers || loadingDocs };
 }

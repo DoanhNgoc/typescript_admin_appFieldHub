@@ -10,6 +10,9 @@ export default function NotificationPartner({ user }: Props) {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
+
+
+
     return (
         <>
             <Button variant="success" onClick={handleShow} className='fw-bold m-1'>
@@ -22,13 +25,16 @@ export default function NotificationPartner({ user }: Props) {
                 </Modal.Header>
                 <Modal.Body>
 
+                    <p className="text-secondary fw-bold fs-6 m-0 p-0">
+                        Một khi đã xác nhận, bạn sẽ không thể hoàn tác. Vui lòng đảm bảo thông tin là chính xác.
+                    </p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Close
+                    <Button variant="dark" onClick={handleClose}>
+                        Thoát
                     </Button>
-                    <Button variant="primary" onClick={handleClose}>
-                        Save Changes
+                    <Button variant="success" onClick={handleClose}>
+                        Xác nhận
                     </Button>
                 </Modal.Footer>
             </Modal>

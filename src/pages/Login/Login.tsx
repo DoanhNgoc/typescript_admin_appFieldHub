@@ -41,13 +41,15 @@ export default function Login({ setShow }: value) {
 
                     if (roleRef) {
                         const roleDoc = await getDoc(roleRef);
-                        const roleData = roleDoc.data();
 
-                        if (roleData.name === "admin") {
-                            const cleanUser = { ...userData, role_id: roleRef.path };
-                            navigate("/MainLayout", { state: { user: cleanUser } });
-                        } else {
-                            setShow(true);
+                        if (roleDoc.exists()) {
+                            const roleData = roleDoc.data() as { name?: string };
+                            if (roleData?.name === "admin") {
+                                const cleanUser = { ...userData, role_id: roleRef.path };
+                                navigate("/MainLayout", { state: { user: cleanUser } });
+                            } else {
+                                setShow(true);
+                            }
                         }
                     }
                 }

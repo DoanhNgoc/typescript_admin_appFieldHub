@@ -103,6 +103,7 @@ export default function Refuse({ onSelectProfile }: RefuseProps) {
                                 </tbody>
                             </Table>
                         )}
+                        <pre>{JSON.stringify(filteredOwners, null, 2)}</pre>
                     </div>
                 </div>
             </div>

@@ -105,32 +105,3 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile, approv
     </>
     );
 }
-// {
-//     "BongDa": {
-//         "sportId": "BongDa",
-//             "sportDoc": { "id": "BongDa", "name": "Bóng đá" },
-//         "fields": [{
-//             "id": "kAR0nNbq3gjgf4zpengT",
-//             "phone": "0123456789", "description": "khu vực Thủ Đức, Trong khuôn viên trường cao đẳng Công Nghệ Thủ Đức",
-//             "area_id": { "type": "firestore/documentReference/1.0", "referencePath": "areas/ccQXsF8oPUXpmSlWmZPh" },
-//             "sport": "BongDa",
-//             "open_time": { "type": "firestore/timestamp/1.0", "seconds": 1760529293, "nanoseconds": 126000000 },
-//             "close_time": { "type": "firestore/timestamp/1.0", "seconds": 1760461200, "nanoseconds": 931000000 }, "name": "tdc"
-//         }],
-//             "count": 1
-//     },
-//     "BongChuyen": {
-//         "sportId": "BongChuyen",
-//             "sportDoc": { "id": "BongChuyen", "name": "Bóng chuyền" },
-//         "fields": [{
-//             "id": "x9XuBBOD1nRRIbgU9T6e",
-//             "close_time": {
-//                 "type": "firestore/timestamp/1.0",
-//                 "seconds": 1760371200, "nanoseconds": 757000000
-//             },
-//             "sport": "BongChuyen", "name": "TDC Võ Văn Ngân",
-//             "phone": "0112233445", "area_id": { "type": "firestore/documentReference/1.0", "referencePath": "areas/ccQXsF8oPUXpmSlWmZPh" }, "open_time": { "type": "firestore/timestamp/1.0", "seconds": 1760306400, "nanoseconds": 227000000 }, "description": "khu vực Thủ Đức, Trong khuôn viên trường cao đẳng Công Nghệ Thủ Đức"
-//         }],
-//             "count": 1
-//     }
-// }

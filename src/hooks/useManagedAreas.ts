@@ -196,7 +196,6 @@ export function useManagedAreas(userId: string | null) {
                 sportsMapTemp[sportId].sportDoc = null;
               }
             } catch (e) {
-              console.warn("Không lấy được sports doc", sportId, e);
               sportsMapTemp[sportId].sportDoc = null;
             }
           })
@@ -205,7 +204,6 @@ export function useManagedAreas(userId: string | null) {
         if (!mounted) return;
         setSportsMap(sportsMapTemp);
       } catch (err) {
-        console.error("useManagedAreas error:", err);
         if (mounted) setError(err);
       } finally {
         if (mounted) setLoading(false);

@@ -13,6 +13,7 @@ import CustomerService from "../pages/Customer/CustomerService";
 import ProfileCustomer from "../pages/Customer/ProfileCustomer";
 import { useLocation } from "react-router-dom";
 import ProfilePartner from "../pages/Partner/ProfilePartner";
+import ProfileRefuse from "../pages/Partner/NewPartner/ProfileRefuse";
 
 export default function MainLayout() {
     const [expanded, setExpanded] = useState(true) //laptop
@@ -51,9 +52,10 @@ export default function MainLayout() {
             case "Refuse":
                 return <Refuse onSelectProfile={(user) => {
                     setSelectedPartner(user);
-                    setActivePage("ProfilePartner");
+                    setActivePage("ProfileRefuse");
                 }} />
-
+            case "ProfileRefuse":
+                return <ProfileRefuse user={selectedPartner} />;
             //violate
             case "Violate":
                 return <Violate />
