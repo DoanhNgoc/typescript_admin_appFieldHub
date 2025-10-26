@@ -4,7 +4,7 @@ import { useOwnersByStatus } from "../../hooks/useOwnersByStatus";
 import ItemPartner from "./ItemPartner";
 
 interface ListPartnerProps {
-    onSelectProfile: (user: any, sportsArray: any) => void;
+    onSelectProfile: (user: any, sportsArray: any, activePage: string) => void;
 }
 
 export default function ListPartner({ onSelectProfile }: ListPartnerProps) {
@@ -24,7 +24,6 @@ export default function ListPartner({ onSelectProfile }: ListPartnerProps) {
             return nameMatch || phoneMatch;
         });
     }, [search, approvedOwners]);
-
     return (
         <div>
             <h3 className="fs-3 fw-bold">Đối tác</h3>

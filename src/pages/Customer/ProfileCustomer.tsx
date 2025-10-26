@@ -73,14 +73,14 @@ export default function ProfileCustomer({ user }: { user: any }) {
                                                     </tr>
                                                 )
                                                 : bookings.map((item, key) => (
-                                                    <tr key={key} className="text-start">
+                                                    <tr key={key} className="text-center">
                                                         <td className="align-middle">{key + 1}</td>
-                                                        <td className="align-middle">{item.field?.name ?? "no field"}</td>
+                                                        <td className="align-middle text-start">{item.field?.name ?? "no field"}</td>
                                                         <td className="align-middle">{item.sport?.name ?? "no sport"}</td>
                                                         <td className="align-middle">{item.created_at ? <FormatTimeDate timestamp={item.created_at} /> : "no time"}</td>
                                                         <td className="align-middle">{item.start_time ? <FormatTimeDate timestamp={item.start_time} /> : "no time"}</td>
                                                         <td className="align-middle">{item.end_time ? <FormatTimeDate timestamp={item.end_time} /> : "no time"}</td>
-                                                        <td className="align-middle">{item.status?.name ? <UsevnStatus status={item.status.name} /> : "no status"}</td>
+                                                        <td className="align-middle text-start">{item.status?.name ? <UsevnStatus status={item.status.name} /> : "no status"}</td>
                                                         <td className="align-middle">{item.price ? <FormatVND amount={item.price} /> : "no price"}</td>
                                                     </tr>
                                                 ))

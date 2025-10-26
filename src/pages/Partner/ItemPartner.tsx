@@ -4,7 +4,7 @@ interface value {
     user_id: string
     keyValue: number
     approvedOwners: any
-    onSelectProfile: (user: any[], sportsArray: any) => void
+    onSelectProfile: (user: any[], sportsArray: any, activePage: string) => void
 }
 export default function ItemPartner({ user_id, keyValue, onSelectProfile, approvedOwners }: value) {
     const { user, sportsMap, loading, error } = useManagedAreas(user_id);
@@ -26,7 +26,6 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile, approv
 
     // 🔹 Lấy danh sách sports từ sportsMap
     const sportsArray = Object.values(sportsMap || {});
-
     if (sportsArray.length === 0) {
         return (
             <tr>
@@ -39,7 +38,7 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile, approv
                     <Button
                         variant="outline-dark"
                         className="fw-bold"
-                        onClick={() => onSelectProfile([user], [...sportsArray])}
+                        onClick={() => onSelectProfile([user], [...sportsArray], "ProfilePartner")}
                     >
                         Hồ sơ
                     </Button>
@@ -93,7 +92,7 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile, approv
                             <Button
                                 variant="outline-dark"
                                 className="fw-bold"
-                                onClick={() => onSelectProfile(approvedOwners, sportsArray)}
+                                onClick={() => onSelectProfile(approvedOwners, sportsArray, "ProfilePartner")}
                             >
                                 Hồ sơ
                             </Button>

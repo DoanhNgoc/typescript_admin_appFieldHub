@@ -14,6 +14,7 @@ import ProfileCustomer from "../pages/Customer/ProfileCustomer";
 import { useLocation } from "react-router-dom";
 import ProfilePartner from "../pages/Partner/ProfilePartner";
 import ProfileRefuse from "../pages/Partner/NewPartner/ProfileRefuse";
+import ListBookingPartner from "../pages/Partner/ListBookingPartner";
 
 export default function MainLayout() {
     const [expanded, setExpanded] = useState(true) //laptop
@@ -36,14 +37,20 @@ export default function MainLayout() {
                 return <Dashboard />;
             //partner
             case "ListPartner":
-                return <ListPartner onSelectProfile={(user, sportsArray) => {
+                return <ListPartner onSelectProfile={(user, sportsArray, ProfilePartner) => {
                     setSelectedPartner(user);
                     setSportsArray(sportsArray);
-                    setActivePage("ProfilePartner");
+                    setActivePage(ProfilePartner);
                 }} />
             // profile partner
             case "ProfilePartner":
-                return <ProfilePartner user={selectedPartner} sportsArray={sportsArray} />
+                return <ProfilePartner user={selectedPartner} sportsArray={sportsArray} onSelectProfile={(sportArray, ProfilePartner) => {
+                    setActivePage(ProfilePartner);
+                    setSportsArray(sportArray)
+                }} />
+            //list history bookings partner
+            case "ListBookingPartner":
+                return <ListBookingPartner sportArray={sportsArray} />
             //newpartner
             //-->pending approval
             case "PendingApproval":

@@ -16,7 +16,7 @@ export default function Refuse({ onSelectProfile }: RefuseProps) {
     const filteredOwners = canceledOwners.filter((item) =>
         item.phone?.toLowerCase().includes(search.toLowerCase())
     );
-
+    console.log("user: ", canceledOwners)
     return (
         <div>
             <h3 className="fw-bold fs-3">Danh sách từ chối</h3>
@@ -103,7 +103,6 @@ export default function Refuse({ onSelectProfile }: RefuseProps) {
                                 </tbody>
                             </Table>
                         )}
-                        <pre>{JSON.stringify(filteredOwners, null, 2)}</pre>
                     </div>
                 </div>
             </div>

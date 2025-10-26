@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
-import {
-  doc,
-  getDoc,
-  DocumentReference,
-} from "firebase/firestore";
+import { doc, getDoc, DocumentReference } from "firebase/firestore";
 import { useCollectionData } from "./useCollectionData";
 
 /**
@@ -16,9 +12,7 @@ type StatusData = { name?: string };
 type OwnerDoc = { user_id?: any; status_id?: any;[key: string]: any };
 
 export function useOwnersByStatus(allowedStatuses: string[] = []) {
-  const { data: users, loading: loadingUsers } = useCollectionData("users", [
-    { field: "role_id", op: "==", value: "/roles/2" },
-  ]);
+  const { data: allUsers, loading: loadingUsers } = useCollectionData("users");
   const { data: ownerDocs, loading: loadingDocs } = useCollectionData("owner_documents");
   const [filteredOwners, setFilteredOwners] = useState<any[]>([]);
 
@@ -28,16 +22,25 @@ export function useOwnersByStatus(allowedStatuses: string[] = []) {
       const statusCache = new Map<string, string>();
       const owners: any[] = [];
 
+      // 🔍 Lọc user có role_id là "/roles/2" hoặc reference tới "roles/2"
+      const users = allUsers.filter((user: any) => {
+        const role = user.role_id;
+        if (!role) return false;
+        if (typeof role === "string") return role === "/roles/2" || role === "roles/2";
+        if (typeof role === "object" && "path" in role) return role.path === "roles/2";
+        return false;
+      });
+
       await Promise.all(
         users.map(async (user: any) => {
-          // Tìm document tương ứng với user
+          // 🔍 Tìm document tương ứng với user
           const docOwner = ownerDocs.find((doc: OwnerDoc) => {
             const ref = doc.user_id || doc["user_id/"];
             return ref?.id === user.id;
           });
           if (!docOwner?.status_id) return;
 
-          // 🔍 Xử lý status_id (DocumentReference hoặc string)
+          // 🔗 Xử lý status_id (DocumentReference hoặc string)
           let statusPath = "";
           let statusRef: DocumentReference | null = null;
 
@@ -76,6 +79,7 @@ export function useOwnersByStatus(allowedStatuses: string[] = []) {
     }
 
     mergeData();
-  }, [users, ownerDocs, loadingUsers, loadingDocs, JSON.stringify(allowedStatuses)]);
+  }, [allUsers, ownerDocs, loadingUsers, loadingDocs, JSON.stringify(allowedStatuses)]);
+
   return { owners: filteredOwners, loading: loadingUsers || loadingDocs };
 }

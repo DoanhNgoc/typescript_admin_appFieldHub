@@ -4,12 +4,16 @@ import FormatDate from "../../components/FormatDate";
 import NotificationPartner from "../../components/NotificationPartner";
 import FieldPriceInfo from "../../components/FieldPriceInfo";
 import React from "react";
-
-export default function ProfilePartner({ user, sportsArray }: { user: any, sportsArray: any }) {
+interface ProfilePartnerProps {
+    user: any,
+    sportsArray: any
+    onSelectProfile: (user_id: string, activePage: string) => void;
+}
+export default function ProfilePartner({ user, sportsArray, onSelectProfile }: ProfilePartnerProps) {
     return <div>
         <div className="d-flex justify-content-between align-items-center">
             <h3 className="fs-3 fw-bold">Hồ sơ: {user[0].nameStore || <span className="text-small text-secondary">Chưa xác định</span>}</h3>
-            <Button variant="warning" >Lịch sử đơn hàng</Button>
+            <Button variant="warning" onClick={() => onSelectProfile(sportsArray, "ListBookingPartner")}>Lịch sử đơn hàng</Button>
         </div>
 
         <div className="my-shadow rounded-4 my-3">
@@ -78,15 +82,27 @@ export default function ProfilePartner({ user, sportsArray }: { user: any, sport
                                     <p className="m-0 fw-bold">
                                         Mặt trước :
                                     </p>
-
-                                    <img src={user[0].documentInfo.card_front !== "" && user.length > 0 ? user[0].documentInfo.card_front : "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/C%C4%83n_c%C6%B0%E1%BB%9Bc_c%C3%B4ng_d%C3%A2n_g%E1%BA%AFn_ch%C3%ADp_m%E1%BA%B7t_tr%C6%B0%E1%BB%9Bc.jpg/960px-C%C4%83n_c%C6%B0%E1%BB%9Bc_c%C3%B4ng_d%C3%A2n_g%E1%BA%AFn_ch%C3%ADp_m%E1%BA%B7t_tr%C6%B0%E1%BB%9Bc.jpg"} className="rounded float-start w-100 m-1 ms-0" alt="..."></img>
+                                    <img
+                                        src={
+                                            user?.[0]?.documentInfo?.card_front
+                                                ? user[0].documentInfo.card_front
+                                                : "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/C%C4%83n_c%C6%B0%E1%BB%9Bc_c%C3%B4ng_d%C3%A2n_g%E1%BA%AFn_ch%C3%ADp_m%E1%BA%B7t_tr%C6%B0%E1%BB%9Bc.jpg/960px-C%C4%83n_c%C6%B0%E1%BB%9Bc_c%C3%B4ng_d%C3%A2n_g%E1%BA%AFn_ch%C3%ADp_m%E1%BA%B7t_tr%C6%B0%E1%BB%9Bc.jpg"
+                                        }
+                                        className="w-100"
+                                    />
                                 </div>
                                 <div className="m-0 p-2 ps-0 col-12 col-md-6">
                                     <p className="m-0 fw-bold">
                                         Mặt sau:
                                     </p>
-
-                                    <img src={user[0].documentInfo.card_back !== "" && user.length > 0 ? user[0].documentInfo.card_back : "http://media.vov.vn/sites/default/files/styles/large/public/2021-10/Can%20cuoc.jpg"} className="rounded float-start w-100 m-1 ms-0" alt="..."></img>
+                                    <img
+                                        src={
+                                            user?.[0]?.documentInfo?.card_back
+                                                ? user[0].documentInfo.card_back
+                                                : "http://media.vov.vn/sites/default/files/styles/large/public/2021-10/Can%20cuoc.jpg"
+                                        }
+                                        className="w-100"
+                                    />
                                     {/*  */}
                                 </div>
                             </div> : <Alert variant="danger">

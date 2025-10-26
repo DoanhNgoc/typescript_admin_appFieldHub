@@ -111,7 +111,7 @@ export default function ListCustomer({ onSelectProfile }: { onSelectProfile: (us
                             </tr>
                         ) : (
                             filteredUsers.map((item, key) => (
-                                <tr key={key}>
+                                <tr key={key} >
                                     <td className="align-middle">{key + 1}</td>
                                     <td className="align-middle">{item.name || "no name"}</td>
                                     <td className="align-middle">{item.phone || "no phone"}</td>
