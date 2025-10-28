@@ -109,7 +109,7 @@ export default function ProfileRefuse({ user }: { user: any }) {
                                     Giấy phép <span className="d-none d-md-inline-block">kinh doanh</span>
                                 </p>
                                 <div className="m-2 d-flex justify-content-center">
-                                    <img src={user.documentInfo.business_license_image !== "" && user.length > 0 ? user.documentInfo.business_license_image : "https://ketoanlacviet.vn/wp-content/uploads/2024/08/mau-giay-chung-nhan-dang-ky-doanh-nghiep-2024.png"} className="rounded float-start w-100 m-1 ms-0" alt="..."></img>
+                                    <img src={user.documentInfo.business_license_image !== "" && user ? user.documentInfo.business_license_image : "https://ketoanlacviet.vn/wp-content/uploads/2024/08/mau-giay-chung-nhan-dang-ky-doanh-nghiep-2024.png"} className="rounded float-start w-100 m-1 ms-0" alt="..."></img>
                                 </div>
                             </div>
                         </div>
@@ -118,7 +118,7 @@ export default function ProfileRefuse({ user }: { user: any }) {
                             {/* hiển thị thông tin các sân */}
                             <div className="profileFields border-bottom border-black px-2 ">
                                 <div>
-                                    <p className="fw-bold p-0 my-1">Tên trụ sở: {user.length > 0 ? user.nameStore : <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                    <p className="fw-bold p-0 my-1">Tên trụ sở: {user.length > 0 && user.nameStore !== "" ? user.nameStore : <span className="text-small text-secondary">chưa xác định</span>}</p>
                                     <p className="fw-bold p-0 my-1">Mô hình hoạt động: {sportsArray.length !== 0 ? sportsArray.map((item: any, key: number) => (
                                         <span
                                             key={key}

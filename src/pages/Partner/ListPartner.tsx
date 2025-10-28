@@ -93,6 +93,8 @@ export default function ListPartner({ onSelectProfile }: ListPartnerProps) {
                         </Table>
                     )}
                 </div>
+                <pre>
+                </pre>
             </div>
         </div>
     );

@@ -211,6 +211,9 @@ export default function ProfilePartner({ user, sportsArray, onSelectProfile }: P
         </Table>
 
 
+        <pre>
+            {JSON.stringify(sportsArray, null, 2)}
+        </pre>
 
     </div>
 }

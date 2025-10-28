@@ -11,7 +11,6 @@ dayjs.extend(customParseFormat);
 export default function ProfileCustomer({ user }: { user: any }) {
     const { bookings, loading } = useUserBookings(user.id);
 
-    console.log(bookings)
     return <div >
         <div className="my-shadow rounded-4 pb-2">
             <div className=" p-0 m-0">
