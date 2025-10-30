@@ -24,8 +24,8 @@ export default function ProfilePartner({ user, sportsArray, onSelectProfile }: P
                         {user[0].name || <span className="text-small text-secondary">Chưa xác định</span>}
                     </p>
                     <div className="text-end">
-                        <NotificationPartner user={user} />
-                        <CancelOfContract user={user} />
+                        <NotificationPartner user={user[0]} />
+                        <CancelOfContract user={user[0]} />
                     </div>
                 </div>
                 <div className=" m-0 row border border-black rounded-bottom-4 ">
