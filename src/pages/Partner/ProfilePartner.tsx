@@ -7,13 +7,13 @@ import React from "react";
 interface ProfilePartnerProps {
     user: any,
     sportsArray: any
-    onSelectProfile: (user_id: string, activePage: string) => void;
+    onSelectProfile: (user_id: any, activePage: string, nameStore: string) => void;
 }
 export default function ProfilePartner({ user, sportsArray, onSelectProfile }: ProfilePartnerProps) {
     return <div>
         <div className="d-flex justify-content-between align-items-center">
             <h3 className="fs-3 fw-bold">Hồ sơ: {user[0].nameStore || <span className="text-small text-secondary">Chưa xác định</span>}</h3>
-            <Button variant="warning" onClick={() => onSelectProfile(sportsArray, "ListBookingPartner")}>Lịch sử đơn hàng</Button>
+            <Button variant="warning" onClick={() => onSelectProfile(sportsArray, "ListBookingPartner", user.length > 0 ? user[0].nameStore : null)}>Lịch sử đơn hàng</Button>
         </div>
 
         <div className="my-shadow rounded-4 my-3">
@@ -177,7 +177,8 @@ export default function ProfilePartner({ user, sportsArray, onSelectProfile }: P
         <p className="fw-bold fs-4">
             danh sách sân hiện có
         </p>
-        <Table striped bordered hover variant="dark">
+        <Table striped bordered
+            variant="dark">
             <thead>
                 <tr >
                     <th rowSpan={2} className="align-middle text-center">STT</th>
