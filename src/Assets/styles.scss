@@ -12,6 +12,17 @@ $success :#0000FF;
 
 }
 
+/* Đổi màu radio được chọn thành đen */
+.form-check-input:checked {
+    background-color: #000 !important;
+    border-color: #000 !important;
+}
+
+/* Khi hover radio */
+.form-check-input:hover {
+    cursor: pointer;
+    border-color: #000 !important;
+}
 
 
 

@@ -46,7 +46,6 @@ export default function NotificationPartner({ user }: Props) {
             alert("Gửi thông báo thất bại!");
         }
     };
-
     return (
         <>
             <Button variant="success" onClick={handleShow} className="fw-bold m-1">
