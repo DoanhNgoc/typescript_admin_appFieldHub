@@ -17,6 +17,6 @@ export default function RenderStars({ rating }: values) {
         stars.push(<i key={`empty-${i}`} className="bi bi-star me-1 fs-5 text-warning"></i>);
     }
 
-    return stars;
+    return <span className="d-block">{stars}</span>;
 }
 

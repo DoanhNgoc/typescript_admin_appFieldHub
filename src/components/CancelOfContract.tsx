@@ -11,7 +11,7 @@ export default function CancelOfContract({ user }: Props) {
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
+    console.log(user)
     return (
         <>
             <Button variant="danger" onClick={handleShow} className='fw-bold m-1'>
@@ -27,10 +27,10 @@ export default function CancelOfContract({ user }: Props) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
-                        Close
+                        Thoát
                     </Button>
-                    <Button variant="primary" onClick={handleClose}>
-                        Save Changes
+                    <Button variant="success" onClick={handleClose}>
+                        Xác nhận
                     </Button>
                 </Modal.Footer>
             </Modal>
