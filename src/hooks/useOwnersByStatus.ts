@@ -22,7 +22,7 @@ export function useOwnersByStatus(allowedStatuses: string[] = []) {
       const statusCache = new Map<string, string>();
       const owners: any[] = [];
 
-      // 🔍 Lọc user có role_id là "/roles/2" hoặc reference tới "roles/2"
+      // Lọc user có role_id là "/roles/2" hoặc reference tới "roles/2"
       const users = allUsers.filter((user: any) => {
         const role = user.role_id;
         if (!role) return false;
@@ -54,7 +54,7 @@ export function useOwnersByStatus(allowedStatuses: string[] = []) {
 
           if (!statusRef || !statusPath) return;
 
-          // 🧠 Cache lại status name nếu đã có
+          // Cache lại status name nếu đã có
           let statusName = statusCache.get(statusPath);
           if (!statusName) {
             const statusSnap = await getDoc(statusRef);
@@ -64,7 +64,7 @@ export function useOwnersByStatus(allowedStatuses: string[] = []) {
             if (statusName) statusCache.set(statusPath, statusName);
           }
 
-          // ✅ Nếu status nằm trong danh sách cho phép
+          // Nếu status nằm trong danh sách cho phép
           if (statusName && allowedStatuses.includes(statusName)) {
             owners.push({
               ...user,

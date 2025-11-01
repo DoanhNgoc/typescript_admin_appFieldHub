@@ -1,58 +1,59 @@
 import { useState } from "react";
-import { doc, updateDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { Button, Form, Modal, Spinner } from "react-bootstrap";
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { Form } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 
-interface Props {
-    user: any; // object chứa thông tin user và documentInfo
+interface values {
+    user: any;
+    onAccepted?: () => void; // thêm prop callback
 }
 
-export default function CancelOfContract({ user }: Props) {
+export default function RefusePartner({ user, onAccepted }: values) {
     const [show, setShow] = useState(false);
     const [reason, setReason] = useState<string>("");
     const [customReason, setCustomReason] = useState<string>("");
     const [loading, setLoading] = useState(false);
 
-    const handleClose = () => setShow(false);
+    const handleClose = () => {
+        if (!loading) {
+            setShow(false);
+            setReason("");
+            setCustomReason("");
+        }
+    };
+
     const handleShow = () => setShow(true);
 
     const handleConfirm = async () => {
         if (!reason) {
-            alert("Vui lòng chọn lý do hủy hợp tác!");
+            alert("Vui lòng chọn lý do từ chối.");
             return;
         }
+
         if (reason === "other" && !customReason.trim()) {
-            alert("Vui lòng nhập lý do chi tiết khi chọn 'Khác'!");
+            alert("Vui lòng nhập lý do cụ thể khi chọn 'Khác'.");
             return;
         }
 
+        if (!user?.documentInfo?.id) return;
+        setLoading(true);
         try {
-            setLoading(true);
-
-            // lấy id owner_documents
-            const ownerDocId = user?.documentInfo?.id;
-            if (!ownerDocId) throw new Error("Không tìm thấy thông tin hồ sơ người dùng!");
+            const ownerDocRef = doc(db, "owner_documents", user.documentInfo.id);
+            const approvedStatusRef = doc(db, "status", "4");
             const userRef = doc(db, "users", user.id); // 🔥 Reference thật trong Firestore
 
-            // 1️⃣ Cập nhật status_id trong owner_documents
-            const ownerDocRef = doc(db, "owner_documents", ownerDocId);
-            const canceledRef = doc(db, "status", "4");
-
             await updateDoc(ownerDocRef, {
-                status_id: canceledRef,
+                status_id: approvedStatusRef,
             });
-
             // 2️⃣ Tạo document mới trong ReasonRefusal
             const reasonContent =
                 reason === "other"
                     ? customReason
-                    : reason === "rule_violation"
-                        ? "Vi phạm quy tắc của hệ thống"
-                        : reason === "bad_experience"
-                            ? "Chất lượng trải nghiệm không tốt"
-                            : "Đánh giá trên hệ thống quá thấp";
+                    : reason === "identification_card"
+                        ? "CCCD chưa hợp lệ"
+                        : reason === "invalid_license"
+                            ? "Giấy phép không được chấp thuận"
+                            : "Thông tin không đầy đủ";
 
             await addDoc(collection(db, "ReasonRefusal"), {
                 content: reasonContent,
@@ -67,29 +68,33 @@ export default function CancelOfContract({ user }: Props) {
                 is_read: false,
                 user_id: userRef, // 👈 Reference
             });
-            alert("Đã hủy hợp tác thành công!");
+            alert("Đã từ chối hợp tác");
+
             handleClose();
-        } catch (err: any) {
-            alert("Lỗi khi hủy hợp tác: " + err.message);
-            console.error(err);
+            // Gọi callback để cha cập nhật UI
+            if (onAccepted) onAccepted();
+
+        } catch (error) {
+            console.error("Lỗi cập nhật:", error);
+            alert("❌ Cập nhật thất bại!");
         } finally {
             setLoading(false);
         }
+
     };
 
     return (
         <>
             <Button variant="danger" onClick={handleShow} className="fw-bold m-1">
-                Hủy hợp đồng
+                Từ chối
             </Button>
 
             <Modal show={show} onHide={handleClose} animation={false} centered size="lg">
                 <Modal.Header closeButton className="bg-header text-light">
-                    <Modal.Title>Hủy hợp tác với {user.nameStore}</Modal.Title>
+                    <Modal.Title>Từ chối hợp tác</Modal.Title>
                 </Modal.Header>
-
-                <Modal.Body>
-                    <div className="row">
+                <Modal.Body className="bg-primary">
+                    <div className="row px-3 py-1 border rounded-4 border-black mx-2">
                         <div className="col-5">
                             <Form>
                                 <div className="mb-3">
@@ -98,9 +103,9 @@ export default function CancelOfContract({ user }: Props) {
                                         inline
                                         type="radio"
                                         name="cancelReason"
-                                        label="Vi phạm quy tắc của hệ thống"
-                                        value="rule_violation"
-                                        checked={reason === "rule_violation"}
+                                        label="CCCD chưa hợp lệ"
+                                        value="identification_card"
+                                        checked={reason === "identification_card"}
                                         onChange={(e) => setReason(e.target.value)}
                                     />
                                     <Form.Check
@@ -108,9 +113,9 @@ export default function CancelOfContract({ user }: Props) {
                                         inline
                                         type="radio"
                                         name="cancelReason"
-                                        label="Chất lượng trải nghiệm không tốt"
-                                        value="bad_experience"
-                                        checked={reason === "bad_experience"}
+                                        label="Giấy phép không được chấp thuận"
+                                        value="invalid_license"
+                                        checked={reason === "invalid_license"}
                                         onChange={(e) => setReason(e.target.value)}
                                     />
                                     <Form.Check
@@ -118,9 +123,9 @@ export default function CancelOfContract({ user }: Props) {
                                         inline
                                         type="radio"
                                         name="cancelReason"
-                                        label="Đánh giá trên hệ thống quá thấp"
-                                        value="low_rating"
-                                        checked={reason === "low_rating"}
+                                        label="Thông tin không đầy đủ"
+                                        value="Incomplete_information"
+                                        checked={reason === "Incomplete_information"}
                                         onChange={(e) => setReason(e.target.value)}
                                     />
                                     <Form.Check
@@ -152,17 +157,19 @@ export default function CancelOfContract({ user }: Props) {
                         </div>
                     </div>
                 </Modal.Body>
-
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
+                <Modal.Footer className="bg-primary border-top-1 border-black">
+                    <Button variant="dark" onClick={handleClose} disabled={loading}>
                         Thoát
                     </Button>
-                    <Button
-                        variant="success"
-                        onClick={handleConfirm}
-                        disabled={!reason || loading}
-                    >
-                        {loading ? "Đang xử lý..." : "Xác nhận"}
+                    <Button variant="success" onClick={handleConfirm} disabled={loading}>
+                        {loading ? (
+                            <>
+                                <Spinner animation="border" size="sm" className="me-2" />
+                                Đang xử lý...
+                            </>
+                        ) : (
+                            "Xác nhận"
+                        )}
                     </Button>
                 </Modal.Footer>
             </Modal>

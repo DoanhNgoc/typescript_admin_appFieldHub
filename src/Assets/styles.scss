@@ -7,10 +7,7 @@ $success :#0000FF;
     display: none !important;
 }
 
-.bg-body {
-    background-color: #CEE9FF;
 
-}
 
 /* Đổi màu radio được chọn thành đen */
 .form-check-input:checked {
@@ -24,6 +21,10 @@ $success :#0000FF;
     border-color: #000 !important;
 }
 
+.form-check-input[type="radio"] {
+    border: 1px solid black !important;
+    box-shadow: none !important;
+}
 
 
 .no-caret .dropdown-toggle {
@@ -86,7 +87,10 @@ $header: #004E89;
     background-color: #CEE9FF !important;
 }
 
+.bg-body {
+    background-color: #CEE9FF;
 
+}
 
 .border-blue {
     border-color: rgba(0, 0, 255, 1) !important; // màu xanh tùy chỉnh

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import usePartnerBookings from "../../hooks/usePartnerBookings";
 import { Button, Form, InputGroup, Spinner, Table } from "react-bootstrap";
 import FormatVND from "../../components/FormatVND";
@@ -6,7 +6,7 @@ import UsevnStatusReference from "../../components/UsevnStatusReference";
 import FormatTimeDate from "../../components/FormatTimeDate";
 import UserNameAndPhone from "../../components/UserNameAndPhone";
 import StarRatingAndContentRating from "../../components/StarRatingAndContentRating";
-import SportNameReference from "../../components/SportNameReference";
+import SportOnField from "../../components/SportOnField";
 
 interface Values {
   sportArray: any;
@@ -15,7 +15,7 @@ interface Values {
 
 export default function ListBookingPartner({ sportArray, nameStore }: Values) {
   const [listFields, setListFields] = useState<any[]>([]);
-
+  const [searchCode, setSearchCode] = useState("");
   useEffect(() => {
     // Gộp tất cả field từ các sport lại thành 1 mảng duy nhất
     const allFields = sportArray.flatMap((item: any) => item.fields || []);
@@ -23,6 +23,13 @@ export default function ListBookingPartner({ sportArray, nameStore }: Values) {
   }, [sportArray]);
   const { bookings, loading } = usePartnerBookings(listFields)
 
+  //lọc danh sách theo tìm kiếm mã đơn
+  const filteredBookings = useMemo(() => {
+    if (!searchCode.trim()) return bookings;
+    return bookings.filter((item: any) =>
+      item.booking_code?.toLowerCase().includes(searchCode.toLowerCase())
+    );
+  }, [bookings, searchCode]);
   return (
     <div>
       {loading ?
@@ -39,11 +46,16 @@ export default function ListBookingPartner({ sportArray, nameStore }: Values) {
                 <div className="col-11 col-md-7 m-0 p-0 fs-5">
                   <InputGroup>
                     <Form.Control
-                      placeholder="Tìm theo tên hoặc số điện thoại..."
-
+                      placeholder="Tìm theo mã đơn..."
+                      value={searchCode}
+                      onChange={(e) => setSearchCode(e.target.value)} // ✅ bắt sự kiện gõ
                     />
-                    <Button variant="light" className="rounded-end border border-2">
-                      <i className="bi bi-search"></i>
+                    <Button
+                      variant="light"
+                      className="rounded-end border border-2"
+                      onClick={() => setSearchCode("")} // ✅ nút clear nhanh
+                    >
+                      <i className="bi bi-x-circle"></i>
                     </Button>
                   </InputGroup>
                 </div>
@@ -67,16 +79,36 @@ export default function ListBookingPartner({ sportArray, nameStore }: Values) {
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings.map((item: any, key: number) => <tr key={key}>
-                    <td className="align-middle text-center">{key + 1}</td>
-                    <UserNameAndPhone user_id={item.user_id?.id} />
-                    <td className="align-middle text-center">{<FormatTimeDate timestamp={item.created_at} />}</td>
-                    <SportNameReference sport_id={item.sport_id?.id} />
-                    <StarRatingAndContentRating booking_id={item.id} />
-                    <td className="align-middle text-center"><FormatVND amount={item.price} /></td>
-                    <td className="align-middle text-center"><UsevnStatusReference status={item.status_id} /></td>
-                    <td className="align-middle text-center">{item.booking_code.slice(-4)}</td>
-                  </tr>)}
+                  {filteredBookings.length > 0 ? (
+                    filteredBookings.map((item: any, key: number) => (
+                      <tr key={key}>
+                        <td className="align-middle text-center">{key + 1}</td>
+                        <UserNameAndPhone user_id={item.user_id?.id} />
+                        <td className="align-middle text-center">
+                          <FormatTimeDate timestamp={item.created_at} />
+                        </td>
+                        <td className="align-middle text-center">
+                          <SportOnField fieldRef={item.field_id} />
+                        </td>
+                        <StarRatingAndContentRating booking_id={item.id} />
+                        <td className="align-middle text-center">
+                          <FormatVND amount={item.price} />
+                        </td>
+                        <td className="align-middle text-center">
+                          <UsevnStatusReference status={item.status_id} />
+                        </td>
+                        <td className="align-middle text-center">
+                          {item.booking_code.slice(-4)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={10} className="text-center text-secondary py-3">
+                        Không tìm thấy mã đơn phù hợp
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             </div>
