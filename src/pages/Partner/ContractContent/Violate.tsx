@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import mammoth from "mammoth";
 import { db } from "../../../firebase/config";
+import { supabase } from "../../../firebase/supabase";
 
 export default function Violate() {
     const [content, setContent] = useState<string>("");
@@ -70,6 +71,7 @@ export default function Violate() {
         setError("");
 
         try {
+            // 🔸 Tạo tên file duy nhất
             const now = new Date();
             const pad = (n: number) => n.toString().padStart(2, "0");
             const formatted = `${now.getFullYear()}${pad(
@@ -79,9 +81,28 @@ export default function Violate() {
             )}${pad(now.getSeconds())}`;
             const fileName = `violate_${formatted}.docx`;
 
+            // 🔸 Upload lên Supabase Storage
+            const { error: uploadError } = await supabase.storage
+                .from("contracts") // bucket
+                .upload(`files/${fileName}`, file, {
+                    cacheControl: "3600",
+                    upsert: false,
+                });
+
+            if (uploadError) throw uploadError;
+
+            // 🔸 Lấy public URL
+            const { data: publicData } = supabase.storage
+                .from("contracts")
+                .getPublicUrl(`files/${fileName}`);
+
+            const fileUrl = publicData.publicUrl;
+
+            // 🔸 Lưu metadata + htmlContent lên Firestore
             await addDoc(collection(db, "policies"), {
                 type: "violate",
                 fileName,
+                fileUrl,
                 htmlContent: previewContent,
                 uploadedAt: serverTimestamp(),
             });

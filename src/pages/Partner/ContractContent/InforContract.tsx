@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import mammoth from "mammoth";
 import { db } from "../../../firebase/config";
+import { supabase } from "../../../firebase/supabase";
 
 export default function InforContract() {
     const [content, setContent] = useState<string>("");
@@ -56,15 +57,30 @@ export default function InforContract() {
 
     // 🔹 Khi chọn file mới
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = e.target.files?.[0];
-        if (!selected) return;
+        const file = e.target.files?.[0];
+        if (!file) return;
+
         setError("");
-        setFile(selected);
+        setFile(file);
         setShowButtons(true);
 
-        const buffer = await selected.arrayBuffer();
-        const result = await mammoth.convertToHtml({ arrayBuffer: buffer });
-        setPreviewContent(result.value);
+        // ✅ Kiểm tra định dạng trước khi đọc
+        if (!file.name.endsWith(".docx")) {
+            alert("Chỉ hỗ trợ file .docx thôi!");
+            setPreviewContent(""); // clear preview nếu có
+            return;
+        }
+
+        try {
+            // ✅ Đọc và chuyển sang HTML
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.convertToHtml({ arrayBuffer });
+            setPreviewContent(result.value);
+            console.log("✅ HTML preview:", result.value);
+        } catch (err) {
+            console.error("❌ Lỗi đọc file:", err);
+            setError("Không thể đọc file Word này. Hãy thử lại với file khác.");
+        }
     };
 
     // 🔹 Khi ấn Save
@@ -76,23 +92,36 @@ export default function InforContract() {
         try {
             const now = new Date();
             const pad = (n: number) => n.toString().padStart(2, "0");
-            const formatted = `${now.getFullYear()}${pad(
-                now.getMonth() + 1
-            )}${pad(now.getDate())}_${pad(now.getHours())}${pad(
-                now.getMinutes()
-            )}${pad(now.getSeconds())}`;
+            const formatted = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(
+                now.getDate()
+            )}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
             const fileName = `contract_${formatted}.docx`;
 
+            // 🔹 1️⃣ Upload file lên Supabase Storage
+            const { error: uploadError } = await supabase.storage
+                .from("contracts") // tên bucket m đã tạo
+                .upload(`files/${fileName}`, file, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            // 🔹 2️⃣ Lấy link public từ Supabase
+            const { data: publicUrlData } = supabase.storage
+                .from("contracts")
+                .getPublicUrl(`files/${fileName}`);
+
+            const fileUrl = publicUrlData.publicUrl;
+
+            // 🔹 3️⃣ Lưu metadata vào Firestore
             await addDoc(collection(db, "policies"), {
                 type: "contract",
                 fileName,
+                fileUrl, // 👈 link file thực tế
                 htmlContent: previewContent,
                 uploadedAt: serverTimestamp(),
             });
 
-            // 🔥 Sau khi lưu xong, load lại bản mới nhất
+            // 🔹 4️⃣ Cập nhật giao diện
             await fetchLatestPolicy();
-
             setPreviewContent("");
             setShowButtons(false);
             setFile(null);
