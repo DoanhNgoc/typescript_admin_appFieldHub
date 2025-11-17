@@ -80,7 +80,7 @@ export default function ProfileCustomer({ user }: { user: any }) {
                                                         <td className="align-middle">{item.start_time ? <FormatTimeDate timestamp={item.start_time} /> : "no time"}</td>
                                                         <td className="align-middle">{item.end_time ? <FormatTimeDate timestamp={item.end_time} /> : "no time"}</td>
                                                         <td className="align-middle text-start">{item.status?.name ? <UsevnStatus status={item.status.name} /> : "no status"}</td>
-                                                        <td className="align-middle">{item.price ? <FormatVND amount={item.price} /> : "no price"}</td>
+                                                        <td className="align-middle">{item.deposit_amount ? <FormatVND amount={item.deposit_amount} /> : "no price"}</td>
                                                     </tr>
                                                 ))
                                             }
@@ -88,8 +88,8 @@ export default function ProfileCustomer({ user }: { user: any }) {
 
                                         </tbody>
                                     </Table>
-                                </div>}
-
+                                </div>
+                            }
                         </div>
 
 

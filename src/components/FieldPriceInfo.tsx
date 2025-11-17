@@ -46,7 +46,7 @@ export default function FieldPriceInfo({ field, keyNumber }: FieldPriceInfoProps
 
 
 
-    return <>
+    return < >
         <td className="text-center align-middle">{keyNumber + 1}</td>
         <td className="text-center align-middle">{field.name}</td>
         <td className="text-center align-middle">{field.address}</td>

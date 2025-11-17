@@ -92,7 +92,7 @@ export default function ListBookingPartner({ sportArray, nameStore }: Values) {
                         </td>
                         <StarRatingAndContentRating booking_id={item.id} />
                         <td className="align-middle text-center">
-                          <FormatVND amount={item.price} />
+                          <FormatVND amount={item.total_amount} />
                         </td>
                         <td className="align-middle text-center">
                           <UsevnStatusReference status={item.status_id} />
@@ -114,11 +114,7 @@ export default function ListBookingPartner({ sportArray, nameStore }: Values) {
             </div>
           </div>
         </>}
-      <h3>booking:</h3>
-      <pre>{JSON.stringify(bookings, null, 2)}</pre>
 
-      <h3>danh sach san</h3>
-      <pre>{JSON.stringify(listFields, null, 2)}</pre>
     </div>
   );
 }

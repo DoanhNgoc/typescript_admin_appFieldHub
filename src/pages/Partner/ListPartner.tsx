@@ -93,9 +93,7 @@ export default function ListPartner({ onSelectProfile }: ListPartnerProps) {
                         </Table>
                     )}
                 </div>
-                <pre>
-                    {JSON.stringify(approvedOwners, null, 2)}
-                </pre>
+
             </div>
         </div>
     );

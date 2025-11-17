@@ -19,7 +19,8 @@ export default function NotificationPartner({ user }: Props) {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-
+        console.log("user:", user);
+        console.log("user.id:", user?.id);
         try {
             const userRef = doc(db, "users", user.id); // 🔥 Reference thật trong Firestore
 

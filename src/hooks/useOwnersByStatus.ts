@@ -12,8 +12,8 @@ type StatusData = { name?: string };
 type OwnerDoc = { user_id?: any; status_id?: any;[key: string]: any };
 
 export function useOwnersByStatus(allowedStatuses: string[] = []) {
-  const { data: allUsers, loading: loadingUsers } = useCollectionData("users");
-  const { data: ownerDocs, loading: loadingDocs } = useCollectionData("owner_documents");
+  const { data: allUsers, loading: loadingUsers } = useCollectionData("users", [], true);
+  const { data: ownerDocs, loading: loadingDocs } = useCollectionData("owner_documents", [], true);
   const [filteredOwners, setFilteredOwners] = useState<any[]>([]);
 
   useEffect(() => {
