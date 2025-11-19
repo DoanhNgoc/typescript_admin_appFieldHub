@@ -175,6 +175,9 @@ export default function ItemPedingApproval({ user, onAccepted }: any) {
                         </div>
                     </div>
                 </div>
+                <pre>
+                    {JSON.stringify(user, null, 2)}
+                </pre>
             </div>}
 
     </div>

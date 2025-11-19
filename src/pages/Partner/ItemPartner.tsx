@@ -1,14 +1,13 @@
 import { Alert, Button, Spinner } from "react-bootstrap";
 import { useManagedAreas } from "../../hooks/useManagedAreas";
 interface value {
-    user_id: string
+    approvedOwner: any
     keyValue: number
-    approvedOwners: any
+
     onSelectProfile: (user: any, sportsArray: any, activePage: string) => void
 }
-export default function ItemPartner({ user_id, keyValue, onSelectProfile, approvedOwners }: value) {
-    const { user, sportsMap, loading, error } = useManagedAreas(user_id);
-
+export default function ItemPartner({ approvedOwner, keyValue, onSelectProfile, }: value) {
+    const { user, sportsMap, loading, error } = useManagedAreas(approvedOwner.id);
 
     if (loading) return <tr>
         <td colSpan={8} className="text-center">
@@ -38,7 +37,7 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile, approv
                     <Button
                         variant="outline-dark"
                         className="fw-bold"
-                        onClick={() => onSelectProfile(user, [...sportsArray], "ProfilePartner")}
+                        onClick={() => onSelectProfile(approvedOwner, [...sportsArray], "ProfilePartner")}
                     >
                         Hồ sơ
                     </Button>
@@ -92,7 +91,7 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile, approv
                             <Button
                                 variant="outline-dark"
                                 className="fw-bold"
-                                onClick={() => onSelectProfile(approvedOwners, sportsArray, "ProfilePartner")}
+                                onClick={() => onSelectProfile(approvedOwner, sportsArray, "ProfilePartner")}
                             >
                                 Hồ sơ
                             </Button>
@@ -101,6 +100,7 @@ export default function ItemPartner({ user_id, keyValue, onSelectProfile, approv
                 )}
             </tr>
         ))}
+
     </>
     );
 }

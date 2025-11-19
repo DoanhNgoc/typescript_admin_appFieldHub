@@ -83,8 +83,8 @@ export default function ListPartner({ onSelectProfile }: ListPartnerProps) {
                                             <ItemPartner
                                                 key={key}
                                                 keyValue={key}
-                                                user_id={item.id}
-                                                approvedOwners={[item]}
+                                                approvedOwner={item}
+
                                                 onSelectProfile={onSelectProfile}
                                             />
                                         ))
@@ -93,7 +93,7 @@ export default function ListPartner({ onSelectProfile }: ListPartnerProps) {
                         </Table>
                     )}
                 </div>
-
+                <pre>{JSON.stringify(approvedOwners, null, 2)}</pre>
             </div>
         </div>
     );
