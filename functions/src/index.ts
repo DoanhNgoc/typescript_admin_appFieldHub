@@ -1,94 +1,68 @@
-import { setGlobalOptions } from "firebase-functions/v2";
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
-import { logger } from "firebase-functions";
-import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import * as admin from "firebase-admin";
 
 admin.initializeApp();
 const db = admin.firestore();
 
-// Giảm chi phí
-setGlobalOptions({ maxInstances: 10 });
-
-/** 
- * Khi ghi lịch khóa → tạo 2 cron task: 1 để LOCK, 1 để UNLOCK 
- */
-export const onLockAccountCreated = onDocumentCreated("lockAccount/{lockId}", async (event) => {
-    const data = event.data?.data();
-
-    if (!data) return;
-
-    const userRef = data.user_id; // DocumentReference
-    const start = data.start_time.toDate();
-    const end = data.end_time.toDate();
-    const lockId = event.params.lockId;
-
-    logger.info("📌 New Lock Event:", { user: userRef.path, start, end });
-
-    // Tạo cron name unique
-    const lockCron = `lockUser_${lockId}`;
-    const unlockCron = `unlockUser_${lockId}`;
-
-    // convert date → cron format: "min hour day month *"
-    const toCron = (d: Date) =>
-        `${d.getMinutes()} ${d.getHours()} ${d.getDate()} ${d.getMonth() + 1} *`;
-
-    // Tạo schedule LOCK
-    await db.collection("_cron").doc(lockCron).set({
-        schedule: toCron(start),
-        timezone: "Asia/Ho_Chi_Minh",
-        action: "lock",
-        userRefPath: userRef.path,
-    });
-
-    // Tạo schedule UNLOCK
-    await db.collection("_cron").doc(unlockCron).set({
-        schedule: toCron(end),
-        timezone: "Asia/Ho_Chi_Minh",
-        action: "unlock",
-        userRefPath: userRef.path,
-    });
-
-    logger.info("⏳ Schedules created:", { lockCron, unlockCron });
-});
-
 /**
- * Scheduler thực thi nhiệm vụ được lưu trong collection _cron
+ * Cron Job chạy mỗi 1 phút
+ * - Xử lý auto lock / unlock theo collection lockAccount
  */
-export const runScheduledTasks = onSchedule("every 1 minutes", async (event) => {
-    const now = new Date();
-    const minute = now.getMinutes();
-    const hour = now.getHours();
-    const day = now.getDate();
-    const month = now.getMonth() + 1;
+export const autoProcessLockAccount = onSchedule("every 1 minutes", async () => {
+    const now = admin.firestore.Timestamp.now();
 
-    const cronFormat = `${minute} ${hour} ${day} ${month} *`;
-
-    const jobsSnap = await db
-        .collection("_cron")
-        .where("schedule", "==", cronFormat)
+    // Lấy các lock chưa hoàn thành
+    const lockSnap = await db.collection("lockAccount")
+        .where("isCompleted", "==", false)
         .get();
 
-    for (const docSnap of jobsSnap.docs) {
-        const job = docSnap.data();
+    if (lockSnap.empty) return;
 
-        const userRef = db.doc(job.userRefPath);
+    const batch = db.batch();
 
-        if (job.action === "lock") {
-            await userRef.update({
+    for (const docSnap of lockSnap.docs) {
+        const lock = docSnap.data();
+        const ref = docSnap.ref;
+
+        const start = lock.start_time;
+        const end = lock.end_time;
+        const userRef = lock.user_id as admin.firestore.DocumentReference;
+
+        if (!start || !end || !userRef) continue;
+
+        const nowMs = now.toMillis();
+        const startMs = start.toMillis();
+        const endMs = end.toMillis();
+
+        // --- 1. Chưa tới thời gian khóa ---
+        if (nowMs < startMs) {
+            continue;
+        }
+
+        // --- 2. Trong khoảng thời gian khóa ---
+        if (nowMs >= startMs && nowMs < endMs) {
+            // Đảm bảo user đang ở trạng thái khóa "status/8"
+            batch.update(userRef, {
                 status_id: db.doc("status/8"),
+                updatedAt: now
             });
-            logger.info("🔒 User locked:", job.userRefPath);
+            continue;
         }
 
-        if (job.action === "unlock") {
-            await userRef.update({
+        // --- 3. Hết thời gian khóa → mở khóa ---
+        if (nowMs >= endMs) {
+            batch.update(userRef, {
                 status_id: db.doc("status/5"),
+                updatedAt: now
             });
-            logger.info("✅ User unlocked:", job.userRefPath);
-        }
 
-        // xóa job chạy rồi
-        await docSnap.ref.delete();
+            // Đánh dấu lockAccount đã xử lý xong
+            batch.update(ref, {
+                isCompleted: true,
+                updatedAt: now
+            });
+        }
     }
+
+    await batch.commit();
 });

@@ -15,6 +15,7 @@ import { useLocation } from "react-router-dom";
 import ProfilePartner from "../pages/Partner/ProfilePartner";
 import ProfileRefuse from "../pages/Partner/NewPartner/ProfileRefuse";
 import ListBookingPartner from "../pages/Partner/ListBookingPartner";
+import Manager from "../pages/Partner/ManagerApp/Manager";
 
 export default function MainLayout() {
     const [expanded, setExpanded] = useState(true) //laptop
@@ -86,6 +87,8 @@ export default function MainLayout() {
             // profile customer
             case "ProfileCustomer":
                 return <ProfileCustomer user={selectedUser} />;
+            case "Manager":
+                return <Manager />;
         }
     }
     return (

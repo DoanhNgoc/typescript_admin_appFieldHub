@@ -95,7 +95,7 @@ export default function Controller({ onSelectPage }: ControllerManagerProps) {
             </Accordion.Item>
 
             {/* manager sport */}
-            <li className="py-2 text-light fs-5 px-3 text-primary" onClick={() => { onSelectPage("Dashboard") }}>
+            <li className="py-2 text-light fs-5 px-3 text-primary" onClick={() => { onSelectPage("Manager") }}>
                 <i className="bi bi-kanban me-2 ms-1 text-primary"></i><span className="text-primary">quản lý app</span>
             </li>
         </Accordion>
