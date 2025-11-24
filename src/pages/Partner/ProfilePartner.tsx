@@ -3,14 +3,84 @@ import CancelOfContract from "../../components/CancelOfContract";
 import FormatDate from "../../components/FormatDate";
 import NotificationPartner from "../../components/NotificationPartner";
 import FieldPriceInfo from "../../components/FieldPriceInfo";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import LockAccount from "../../components/LockAccount";
+import { collection, doc, onSnapshot, query, updateDoc, where } from "firebase/firestore";
+import { db } from "../../firebase/config";
 interface ProfilePartnerProps {
     user: any,
     sportsArray: any
     onSelectProfile: (user_id: any, activePage: string, nameStore: string) => void;
 }
 export default function ProfilePartner({ user, sportsArray, onSelectProfile }: ProfilePartnerProps) {
+    const [lock, setLock] = useState<any>([])
+    // const getLockAccount = async () => {
+    //     const userRef = doc(db, 'users', user.id)
+    //     const q = query(
+    //         collection(db, "lockAccount"),
+    //         where("user_id", "==", userRef),
+    //         where("isComplete", "==", false)
+    //     )
+    //     const snapShot = await getDocs(q);
+    //     setLock(snapShot.docs.map((d) => ({ id: d.id, ...d.data() })))
+    // }
+    useEffect(() => {
+        if (!user.id) return;
+
+        const userRef = doc(db, "users", user.id);
+
+        const q = query(
+            collection(db, "lockAccount"),
+            where("user_id", "==", userRef),
+            where("isComplete", "==", true)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const list = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ref: doc.ref,
+                ...doc.data()
+            }));
+            setLock(list);
+        });
+
+        return () => unsubscribe();
+    }, [user.id]);
+
+
+    // ⏰ TIMER CHẠY 1 LẦN / PHÚT
+    useEffect(() => {
+        if (lock.length === 0) return;
+
+        const interval = setInterval(async () => {
+            const now = new Date();
+
+            for (const item of lock) {
+                const start = item.start_time.toDate();
+                const end = item.end_time.toDate();
+                // ----- 1. Đến giờ start → khóa
+                if (now >= start && now < end) {
+                    console.log("🔐 Tài khoản đang bị khóa");
+
+                    await updateDoc(item.ref, {
+                        isComplete: true
+                    });
+                }
+
+                // ----- 2. Đến giờ end → mở khóa + set isComplete = true
+                else {
+                    console.log("✅ Mở khóa ");
+
+                    await updateDoc(item.ref, {
+                        isComplete: false
+                    });
+                }
+            }
+        }, 1 * 1000); // 10s /lần
+
+        return () => clearInterval(interval);
+    }, [lock]);
+
     return <div>
         <div className="d-flex justify-content-between align-items-center">
             <h3 className="fs-3 fw-bold">Hồ sơ: {user?.nameStore || <span className="text-small text-secondary">Chưa xác định</span>}</h3>
@@ -26,7 +96,7 @@ export default function ProfilePartner({ user, sportsArray, onSelectProfile }: P
                     </p>
                     <div className="text-end">
                         <NotificationPartner user={user} />
-                        <LockAccount user={user} />
+                        <LockAccount user={user} lock={lock} />
                         <CancelOfContract user={user} />
                     </div>
                 </div>

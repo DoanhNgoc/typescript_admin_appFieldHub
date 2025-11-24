@@ -4,65 +4,57 @@ import * as admin from "firebase-admin";
 admin.initializeApp();
 const db = admin.firestore();
 
-/**
- * Cron Job chạy mỗi 1 phút
- * - Xử lý auto lock / unlock theo collection lockAccount
- */
-export const autoProcessLockAccount = onSchedule("every 1 minutes", async () => {
-    const now = admin.firestore.Timestamp.now();
+export const autoLockAccount = onSchedule("every 1 minutes", async () => {
+    const now = new Date();
 
-    // Lấy các lock chưa hoàn thành
-    const lockSnap = await db.collection("lockAccount")
+    // 1️⃣ Lấy doc cần bắt đầu khóa
+    const startSnap = await db.collection("lockAccount")
+        .where("start_time", "<=", now)
+        .where("end_time", ">", now)
+        .where("isCompletedStart", "==", false)
+        .get();
+
+    for (const doc of startSnap.docs) {
+        const data = doc.data();
+        const userRef = data.user_id;
+
+        // Lấy owner_documents tương ứng user
+        const ownerSnap = await db.collection("owner_documents")
+            .where("user_id", "==", userRef)
+            .get();
+
+        if (!ownerSnap.empty) {
+            const ownerRef = ownerSnap.docs[0].ref;
+            await ownerRef.update({
+                status_id: db.doc("status/8")
+            });
+        }
+
+        // Đánh dấu đã chạy
+        await doc.ref.update({ isCompletedStart: true });
+    }
+
+    // 2️⃣ Lấy doc cần kết thúc khóa
+    const endSnap = await db.collection("lockAccount")
+        .where("end_time", "<=", now)
         .where("isCompleted", "==", false)
         .get();
 
-    if (lockSnap.empty) return;
+    for (const doc of endSnap.docs) {
+        const data = doc.data();
+        const userRef = data.user_id;
 
-    const batch = db.batch();
+        const ownerSnap = await db.collection("owner_documents")
+            .where("user_id", "==", userRef)
+            .get();
 
-    for (const docSnap of lockSnap.docs) {
-        const lock = docSnap.data();
-        const ref = docSnap.ref;
-
-        const start = lock.start_time;
-        const end = lock.end_time;
-        const userRef = lock.user_id as admin.firestore.DocumentReference;
-
-        if (!start || !end || !userRef) continue;
-
-        const nowMs = now.toMillis();
-        const startMs = start.toMillis();
-        const endMs = end.toMillis();
-
-        // --- 1. Chưa tới thời gian khóa ---
-        if (nowMs < startMs) {
-            continue;
-        }
-
-        // --- 2. Trong khoảng thời gian khóa ---
-        if (nowMs >= startMs && nowMs < endMs) {
-            // Đảm bảo user đang ở trạng thái khóa "status/8"
-            batch.update(userRef, {
-                status_id: db.doc("status/8"),
-                updatedAt: now
-            });
-            continue;
-        }
-
-        // --- 3. Hết thời gian khóa → mở khóa ---
-        if (nowMs >= endMs) {
-            batch.update(userRef, {
-                status_id: db.doc("status/5"),
-                updatedAt: now
-            });
-
-            // Đánh dấu lockAccount đã xử lý xong
-            batch.update(ref, {
-                isCompleted: true,
-                updatedAt: now
+        if (!ownerSnap.empty) {
+            const ownerRef = ownerSnap.docs[0].ref;
+            await ownerRef.update({
+                status_id: db.doc("status/5")
             });
         }
+
+        await doc.ref.update({ isCompleted: true });
     }
-
-    await batch.commit();
 });
