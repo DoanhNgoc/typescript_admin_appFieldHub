@@ -12,7 +12,7 @@ import { Alert, Button, FloatingLabel, Form, Modal } from 'react-bootstrap';
 import 'dayjs/locale/vi';
 import duration from 'dayjs/plugin/duration';
 import isBetween from 'dayjs/plugin/isBetween';
-import { addDoc, collection, doc } from "firebase/firestore";
+import { addDoc, collection, doc, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 
@@ -25,10 +25,10 @@ dayjs.locale("vi");
 
 interface Props {
     user: any;
-    lock: any
+
 }
 
-export default function LockAccount({ user, lock }: Props) {
+export default function LockAccount({ user }: Props) {
     const [show, setShow] = useState(false);
     const [reason, setReason] = useState("");
     const [notificationContent, setNotificationContent] = useState("");
@@ -36,15 +36,50 @@ export default function LockAccount({ user, lock }: Props) {
     const [endDateTime, setEndDateTime] = useState<Dayjs | null>(null);
     const [statusLock, setStatusLock] = useState<string>("unlock")
     const [error, setError] = useState<boolean>(false)
+    const [lock, setLock] = useState<any>([]);
+
+    useEffect(() => {
+        if (!user.id) return;
+
+        const userRef = doc(db, "users", user.id);
+        const q = query(
+            collection(db, "lockAccount"),
+            where("user_id", "==", userRef),
+            where("isComplete", "==", true)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const list = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ref: doc.ref,
+                ...doc.data()
+            }));
+            setLock(list);
+        });
+
+        return () => unsubscribe();
+    }, [user.id]);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const now = new Date();
+
+            lock.forEach(async (item: any) => {
+                const start = item.start_time.toDate();
+                const end = item.end_time.toDate();
+
+                if (now >= start && now <= end && !item.isComplete) {
+                    await updateDoc(item.ref, { isComplete: true });
+                } else if ((now < start || now > end) && item.isComplete) {
+                    await updateDoc(item.ref, { isComplete: false });
+                }
+            });
+        }, 1000); // check 1 giây
+
+        return () => clearInterval(interval);
+    }, [lock]);
+
     const handleClose = () => setShow(false);
-    const handleShow = () => {
-        setShow(true);
-        setReason("")
-        setStartDateTime(null)
-        setEndDateTime(null)
-        setNotificationContent("")
-        setError(false)
-    };
+
     const handleSubmit = async () => {
         try {
             if (reason === "" || startDateTime === null || endDateTime === null || notificationContent === "")
@@ -74,7 +109,6 @@ export default function LockAccount({ user, lock }: Props) {
                     title: reason,
                     user_id: userRef
                 })
-                console.log(notificationContentInOwener)
                 setReason("")
                 setStartDateTime(null)
                 setEndDateTime(null)
@@ -87,20 +121,13 @@ export default function LockAccount({ user, lock }: Props) {
         }
     }
     useEffect(() => {
-        if (lock.length === 0) {
-            setStatusLock("unlock")
-        }
-        else {
-            setStatusLock("lock")
-        }
-    }, [lock])
-    console.log(lock)
+        setStatusLock(lock.length === 0 ? "unlock" : "lock");
+    }, [lock]);
+
 
     return (
         <>
-            <Button variant="secondary" onClick={handleShow} className="fw-bold m-1">
-                {statusLock === "unlock" ? <>Tạm khóa</> : <>Mở khóa</>}
-            </Button>
+
 
             <Modal show={show} onHide={handleClose} centered size="lg">
                 <Modal.Header closeButton className="bg-header text-light">
@@ -110,80 +137,86 @@ export default function LockAccount({ user, lock }: Props) {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <p className="fw-bold">Bắt đầu</p>
-                                <DatePicker
-                                    label="Ngày bắt đầu"
-                                    format="DD/MM/YYYY"
-                                    value={startDateTime}
-                                    onChange={e => e && setStartDateTime(e)}
-                                />
-                                <TimePicker
-                                    className="mt-3"
-                                    label="Giờ bắt đầu"
-                                    ampm={false}
-                                    value={startDateTime}
-                                    onChange={e => e && setStartDateTime(dayjs(startDateTime).hour(e.hour()).minute(e.minute()))}
-                                />
-                            </div>
+                    {
+                        statusLock === "unlock" ? <div>
+                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+                                <div className="row">
+                                    <div className="col-md-6 mb-3">
+                                        <p className="fw-bold">Bắt đầu</p>
+                                        <DatePicker
+                                            label="Ngày bắt đầu"
+                                            format="DD/MM/YYYY"
+                                            value={startDateTime}
+                                            onChange={e => e && setStartDateTime(e)}
+                                        />
+                                        <TimePicker
+                                            className="mt-3"
+                                            label="Giờ bắt đầu"
+                                            ampm={false}
+                                            value={startDateTime}
+                                            onChange={e => e && setStartDateTime(dayjs(startDateTime).hour(e.hour()).minute(e.minute()))}
+                                        />
+                                    </div>
 
-                            <div className="col-md-6 mb-3">
-                                <p className="fw-bold">Kết thúc</p>
-                                <DatePicker
-                                    label="Ngày kết thúc"
-                                    format="DD/MM/YYYY"
-                                    value={endDateTime}
-                                    onChange={e => {
+                                    <div className="col-md-6 mb-3">
+                                        <p className="fw-bold">Kết thúc</p>
+                                        <DatePicker
+                                            label="Ngày kết thúc"
+                                            format="DD/MM/YYYY"
+                                            value={endDateTime}
+                                            onChange={e => {
 
 
-                                        setEndDateTime(e);
-                                    }}
-                                />
-                                <TimePicker
-                                    className="mt-3"
-                                    label="Giờ kết thúc"
-                                    ampm={false}
-                                    value={endDateTime}
-                                    onChange={(e) => {
-                                        if (!e) return;
+                                                setEndDateTime(e);
+                                            }}
+                                        />
+                                        <TimePicker
+                                            className="mt-3"
+                                            label="Giờ kết thúc"
+                                            ampm={false}
+                                            value={endDateTime}
+                                            onChange={(e) => {
+                                                if (!e) return;
 
-                                        const base = endDateTime ?? startDateTime ?? dayjs();
+                                                const base = endDateTime ?? startDateTime ?? dayjs();
 
-                                        const newEnd = dayjs(base)
-                                            .hour(e.hour())
-                                            .minute(e.minute());
+                                                const newEnd = dayjs(base)
+                                                    .hour(e.hour())
+                                                    .minute(e.minute());
 
-                                        setEndDateTime(newEnd);
-                                    }}
+                                                setEndDateTime(newEnd);
+                                            }}
 
-                                />
-                            </div>
+                                        />
+                                    </div>
+                                </div>
+
+                                <FloatingLabel controlId="reasonInput" label="Lý do khóa / tiêu đề" className="my-3">
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Nhập lý do"
+                                        value={reason}
+                                        onChange={e => setReason(e.target.value)}
+                                    />
+                                </FloatingLabel>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Nội dung thông báo</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        value={notificationContent}
+                                        onChange={e => setNotificationContent(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </LocalizationProvider>
+                            {error ? <Alert variant="danger">
+                                Hiện tại thông tin còn thiếu hãy kiểm tra lại thông tin
+                            </Alert> : <></>}
+                        </div> : <div>
+
                         </div>
-
-                        <FloatingLabel controlId="reasonInput" label="Lý do khóa / tiêu đề" className="my-3">
-                            <Form.Control
-                                type="text"
-                                placeholder="Nhập lý do"
-                                value={reason}
-                                onChange={e => setReason(e.target.value)}
-                            />
-                        </FloatingLabel>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label>Nội dung thông báo</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                value={notificationContent}
-                                onChange={e => setNotificationContent(e.target.value)}
-                            />
-                        </Form.Group>
-                    </LocalizationProvider>
-                    {error ? <Alert variant="danger">
-                        Hiện tại thông tin còn thiếu hãy kiểm tra lại thông tin
-                    </Alert> : <></>}
+                    }
                 </Modal.Body>
 
                 <Modal.Footer>

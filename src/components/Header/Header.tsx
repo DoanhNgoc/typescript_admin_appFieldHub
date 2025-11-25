@@ -17,7 +17,6 @@ export default function Header({ setShowOffcanvas, setShowLaptop, user }: value)
     const handleClickMoblie = () => {
         setShow(!show)
         setShowOffcanvas(show)
-        // console.log(show)
     }
     const handleClickLaptop = () => {
         setExpanded(!expanded)
@@ -28,7 +27,6 @@ export default function Header({ setShowOffcanvas, setShowLaptop, user }: value)
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            console.log("User đã đăng xuất!");
             navigate("/"); // quay lại trang login
         } catch (error) {
             console.error("Lỗi khi logout:", error);

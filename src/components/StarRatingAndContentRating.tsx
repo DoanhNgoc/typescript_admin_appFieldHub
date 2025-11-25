@@ -7,8 +7,7 @@ interface values {
 }
 export default function StarRatingAndContentRating({ booking_id }: values) {
     const { review, loading } = useReviewByBookingId(booking_id);
-    console.log("booking_id: ", booking_id)
-    console.log(review)
+
     return <>
         {loading ? <>
             <td className="align-middle text-center"><Spinner animation="grow" variant="info" /></td>

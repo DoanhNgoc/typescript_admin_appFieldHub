@@ -1,38 +1,48 @@
-import { Alert, Button, Image, Table } from "react-bootstrap";
+import { Alert, Badge, Button, Image, Table } from "react-bootstrap";
 import CancelOfContract from "../../components/CancelOfContract";
 import FormatDate from "../../components/FormatDate";
 import NotificationPartner from "../../components/NotificationPartner";
 import FieldPriceInfo from "../../components/FieldPriceInfo";
-import React, { useEffect, useState } from "react";
-import LockAccount from "../../components/LockAccount";
-import { collection, doc, onSnapshot, query, updateDoc, where } from "firebase/firestore";
+import React from "react";
+import { useEffect, useState } from "react";
+import { LocalizationProvider, DatePicker, TimePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs, { Dayjs } from "dayjs";
+import { FloatingLabel, Form, Modal } from 'react-bootstrap';
+
+
+import 'dayjs/locale/vi';
+import duration from 'dayjs/plugin/duration';
+import isBetween from 'dayjs/plugin/isBetween';
+import { addDoc, collection, doc, onSnapshot, query, updateDoc, where } from "firebase/firestore";
 import { db } from "../../firebase/config";
+import FormatTimeDate from "../../components/FormatTimeDate";
+dayjs.extend(duration);
+dayjs.extend(isBetween);
+dayjs.locale("vi");
 interface ProfilePartnerProps {
     user: any,
     sportsArray: any
     onSelectProfile: (user_id: any, activePage: string, nameStore: string) => void;
 }
 export default function ProfilePartner({ user, sportsArray, onSelectProfile }: ProfilePartnerProps) {
-    const [lock, setLock] = useState<any>([])
-    // const getLockAccount = async () => {
-    //     const userRef = doc(db, 'users', user.id)
-    //     const q = query(
-    //         collection(db, "lockAccount"),
-    //         where("user_id", "==", userRef),
-    //         where("isComplete", "==", false)
-    //     )
-    //     const snapShot = await getDocs(q);
-    //     setLock(snapShot.docs.map((d) => ({ id: d.id, ...d.data() })))
-    // }
-    useEffect(() => {
+
+    const [show, setShow] = useState(false);
+    const [reason, setReason] = useState("");
+    const [notificationContent, setNotificationContent] = useState("");
+    const [startDateTime, setStartDateTime] = useState<Dayjs | null>(null);
+    const [endDateTime, setEndDateTime] = useState<Dayjs | null>(null);
+    const [statusLock, setStatusLock] = useState<string>("unlock")
+    const [error, setError] = useState<boolean>(false)
+    const [lock, setLock] = useState<any>([]);
+    const [data, setData] = useState<any>([])
+    const getLock = () => {
         if (!user.id) return;
 
         const userRef = doc(db, "users", user.id);
-
         const q = query(
             collection(db, "lockAccount"),
             where("user_id", "==", userRef),
-            where("isComplete", "==", true)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -45,45 +55,251 @@ export default function ProfilePartner({ user, sportsArray, onSelectProfile }: P
         });
 
         return () => unsubscribe();
+    }
+    //tìm ra các loc user đang có
+    useEffect(() => {
+        getLock()
     }, [user.id]);
 
-
-    // ⏰ TIMER CHẠY 1 LẦN / PHÚT
+    //refect mở khóa tài khoản sau mỗi giây
     useEffect(() => {
-        if (lock.length === 0) return;
-
-        const interval = setInterval(async () => {
+        const interval = setInterval(() => {
             const now = new Date();
 
-            for (const item of lock) {
+            lock.forEach(async (item: any) => {
                 const start = item.start_time.toDate();
                 const end = item.end_time.toDate();
-                // ----- 1. Đến giờ start → khóa
-                if (now >= start && now < end) {
-                    console.log("🔐 Tài khoản đang bị khóa");
 
-                    await updateDoc(item.ref, {
-                        isComplete: true
-                    });
+                if (now >= start && now <= end && !item.isComplete) {
+                    await updateDoc(item.ref, { isComplete: true });
+                    setStatusLock("lock")
+                } else if ((now < start || now > end) && item.isComplete) {
+                    await updateDoc(item.ref, { isComplete: false });
+                    setStatusLock("unlock")
+
+
                 }
+            });
 
-                // ----- 2. Đến giờ end → mở khóa + set isComplete = true
-                else {
-                    console.log("✅ Mở khóa ");
+            // 👉 Lọc lại sau khi kiểm tra
+            const arr = lock.filter((item: any) => item.isComplete === true);
+            setData(arr);
 
-                    await updateDoc(item.ref, {
-                        isComplete: false
-                    });
-                }
-            }
-        }, 1 * 1000); // 10s /lần
+        }, 1000);
 
         return () => clearInterval(interval);
     }, [lock]);
 
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => {
+        setShow(true);
+        setReason("")
+        setStartDateTime(null)
+        setEndDateTime(null)
+        setNotificationContent("")
+        setError(false)
+    };
+    //nut khóa tài khoản
+    const handleSubmitLockAccount = async () => {
+        try {
+            if (reason === "" || startDateTime === null || endDateTime === null || notificationContent === "")
+                setError(true)
+
+            else {
+                const lockCol = collection(db, "lockAccount"); //collection lock account 
+                const notificationCol = collection(db, "notifications") // collection notification thông báo cho owner biết sắp bị khóa app tạm thời
+                const userRef = doc(db, 'users', user.id)
+                const now = new Date();
+
+                await addDoc(lockCol, {
+                    content: notificationContent,
+                    end_time: endDateTime?.toDate(),
+                    isComplete: now >= startDateTime.toDate() && now <= endDateTime.toDate() ? true : false,
+                    start_time: startDateTime?.toDate(),
+                    title: reason,
+                    update: dayjs().toDate(),
+                    user_id: userRef
+                })
+                const notificationContentInOwener = `${notificationContent}\n thời gian bắt đầu: ${startDateTime?.toDate()}.\nThời gian kết thúc: ${endDateTime?.toDate()}`
+                await addDoc(notificationCol, {
+                    created_at: Date.now(),
+                    field_name: "fieldhub",
+                    is_read: false,
+                    subtitle: notificationContentInOwener,
+                    title: reason,
+                    user_id: userRef
+                })
+                alert(`khóa tài khoản trong khoản thời gian: ${startDateTime?.toDate()}-${endDateTime?.toDate()}`)
+
+                setReason("")
+                setStartDateTime(null)
+                setEndDateTime(null)
+                setNotificationContent("")
+                setError(false)
+                setShow(false)
+            }
+        } catch (error) {
+            console.log("error lock bug: ", error)
+        }
+    }
+    //nut mở tài khoản sớm
+    const handleSubmitUnlockAccount = async () => {
+
+
+
+        try {
+            const unlockDoc = doc(db, "lockAccount", data[0].id)
+            const notificationCol = collection(db, "notifications")
+            const userRef = doc(db, 'users', user.id)
+            //thong báo tài khoan da được mở
+            const notificationContentInOwener = `tài khoản của bạn đã được mở lại, chú ý thay đến những nội dung hợp động để tránh sự việc đáng tiếc, chúc cơ sở của bạn có phát triển tốt`
+            await addDoc(notificationCol, {
+                created_at: Date.now(),
+                field_name: "fieldhub",
+                is_read: false,
+                subtitle: notificationContentInOwener,
+                title: `tài khoản của ${user?.name}`,
+                user_id: userRef
+            })
+            await updateDoc(unlockDoc, {
+                content: notificationContent,
+                end_time: dayjs().toDate(),
+                isComplete: false,
+                start_time: data[0].start_time,
+                title: data[0].title,
+                update: dayjs().toDate(),
+                user_id: userRef
+
+            })
+            setReason("")
+            setStartDateTime(null)
+            setEndDateTime(null)
+            setNotificationContent("")
+            setError(false)
+            setShow(false)
+            getLock()
+            setStatusLock("unlock")
+            console.log("data sau unlock", data)
+        } catch (error) {
+            console.log('error bug unlock: ', error)
+        }
+        alert("Đã mở khóa tài khoản")
+    }
+    useEffect(() => {
+        setStatusLock(data.length === 0 ? "unlock" : "lock");
+    }, [data]);
+
+
+
     return <div>
+        <Modal show={show} onHide={handleClose} centered size="lg">
+            <Modal.Header closeButton className="bg-header text-light">
+                <Modal.Title>
+                    {`Tạm khóa ${user.nameStore}`}
+                </Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+                {
+                    statusLock === "unlock" ? <div>
+                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+                            <div className="row">
+                                <div className="col-md-6 mb-3">
+                                    <p className="fw-bold">Bắt đầu</p>
+                                    <DatePicker
+                                        label="Ngày bắt đầu"
+                                        format="DD/MM/YYYY"
+                                        value={startDateTime}
+                                        onChange={e => e && setStartDateTime(e)}
+                                    />
+                                    <TimePicker
+                                        className="mt-3"
+                                        label="Giờ bắt đầu"
+                                        ampm={false}
+                                        value={startDateTime}
+                                        onChange={e => e && setStartDateTime(dayjs(startDateTime).hour(e.hour()).minute(e.minute()))}
+                                    />
+                                </div>
+
+                                <div className="col-md-6 mb-3">
+                                    <p className="fw-bold">Kết thúc</p>
+                                    <DatePicker
+                                        label="Ngày kết thúc"
+                                        format="DD/MM/YYYY"
+                                        value={endDateTime}
+                                        onChange={e => {
+
+
+                                            setEndDateTime(e);
+                                        }}
+                                    />
+                                    <TimePicker
+                                        className="mt-3"
+                                        label="Giờ kết thúc"
+                                        ampm={false}
+                                        value={endDateTime}
+                                        onChange={(e) => {
+                                            if (!e) return;
+
+                                            const base = endDateTime ?? startDateTime ?? dayjs();
+
+                                            const newEnd = dayjs(base)
+                                                .hour(e.hour())
+                                                .minute(e.minute());
+
+                                            setEndDateTime(newEnd);
+                                        }}
+
+                                    />
+                                </div>
+                            </div>
+
+                            <FloatingLabel controlId="reasonInput" label="Lý do khóa / tiêu đề" className="my-3">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Nhập lý do"
+                                    value={reason}
+                                    onChange={e => setReason(e.target.value)}
+                                />
+                            </FloatingLabel>
+
+                            <Form.Group className="mb-3">
+                                <Form.Label>Nội dung thông báo</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
+                                    value={notificationContent}
+                                    onChange={e => setNotificationContent(e.target.value)}
+                                />
+                            </Form.Group>
+                        </LocalizationProvider>
+                        {error ? <Alert variant="danger">
+                            Hiện tại thông tin còn thiếu hãy kiểm tra lại thông tin
+                        </Alert> : <></>}
+                    </div> : data.map((item: any, key: number) => (
+                        <div key={key}>
+                            <p className="fw-bold mb-1">Chủ tài khoản: <span className="fw-normal">{user?.name}</span></p>
+                            <p className="fw-bold mb-1">Nội dung: <span className="fw-normal">{item?.content}</span></p>
+                            <p className="fw-bold mb-1">Ngày tạo: <span className="fw-normal"><FormatTimeDate timestamp={item?.update} /></span></p>
+                            <p className="fw-bold mb-1">Thời gian Khóa: <span className="fw-normal"><FormatTimeDate timestamp={item?.start_time} />-<FormatTimeDate timestamp={item?.end_time} /></span></p>
+
+                        </div>
+                    ))
+                }
+
+            </Modal.Body>
+
+            <Modal.Footer>
+                <Button variant="dark" onClick={handleClose}>Thoát</Button>
+
+                <Button variant={statusLock === "unlock" ? "info" : "success"} onClick={() => {
+                    statusLock === "unlock" ? handleSubmitLockAccount() : handleSubmitUnlockAccount()
+                }}>{statusLock === "unlock" ? <>khóa tài khoản</> : <>Mở khóa</>}</Button>
+            </Modal.Footer>
+        </Modal>
         <div className="d-flex justify-content-between align-items-center">
-            <h3 className="fs-3 fw-bold">Hồ sơ: {user?.nameStore || <span className="text-small text-secondary">Chưa xác định</span>}</h3>
+            <h3 className="fs-3 fw-bold">Hồ sơ: {user?.nameStore || <span className="text-small text-secondary">Chưa xác định</span>}<Badge bg={statusLock === "unlock" ? "success" : "danger"}>{statusLock === "unlock" ? <>hoạt động</> : <>tạm khóa</>}</Badge></h3>
             <Button variant="warning" onClick={() => onSelectProfile(sportsArray, "ListBookingPartner", user !== null ? user.nameStore : null)}>Lịch sử đơn hàng</Button>
         </div>
 
@@ -96,7 +312,9 @@ export default function ProfilePartner({ user, sportsArray, onSelectProfile }: P
                     </p>
                     <div className="text-end">
                         <NotificationPartner user={user} />
-                        <LockAccount user={user} lock={lock} />
+                        <Button variant="secondary" onClick={handleShow} className="fw-bold m-1">
+                            {statusLock === "unlock" ? <>Tạm khóa</> : <>Mở khóa</>}
+                        </Button>
                         <CancelOfContract user={user} />
                     </div>
                 </div>
@@ -322,9 +540,6 @@ export default function ProfilePartner({ user, sportsArray, onSelectProfile }: P
             </tbody>
         </Table>
 
-        <pre>
-            {JSON.stringify(user, null, 2)}
-        </pre>
 
     </div>
 }

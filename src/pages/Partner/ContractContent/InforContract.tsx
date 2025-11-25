@@ -76,7 +76,6 @@ export default function InforContract() {
             const arrayBuffer = await file.arrayBuffer();
             const result = await mammoth.convertToHtml({ arrayBuffer });
             setPreviewContent(result.value);
-            console.log("✅ HTML preview:", result.value);
         } catch (err) {
             console.error("❌ Lỗi đọc file:", err);
             setError("Không thể đọc file Word này. Hãy thử lại với file khác.");

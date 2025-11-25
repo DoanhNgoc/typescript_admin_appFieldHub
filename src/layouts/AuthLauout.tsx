@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Login from "../pages/Login/Login"
 import { Toast, ToastContainer } from "react-bootstrap"
 export default function AuthLayout() {
@@ -6,10 +6,7 @@ export default function AuthLayout() {
     const handlecloseToast = () => {
         setShow(false)
     }
-    useEffect(() => {
-        console.log(show)
 
-    }, [show])
     return <div
         className="min-vh-100 w-100 m-0 p-0 d-flex justify-content-center align-items-center position-relative bg-secondary">
         {show ? <ToastContainer position="top-end" className="p-3" style={{ zIndex: 1 }}>

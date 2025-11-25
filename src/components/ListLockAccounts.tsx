@@ -53,11 +53,11 @@ export default function ListLockAccounts() {
         <Table striped bordered hover>
             <thead>
                 <tr>
-                    <th>stt</th>
-                    <th>name</th>
-                    <th>create at</th>
-                    <th>status</th>
-                    <th>view</th>
+                    <th>STT</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Create at</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,8 +66,6 @@ export default function ListLockAccounts() {
                 </tr>}
             </tbody>
         </Table>
-        <pre>
-            {JSON.stringify(listLock, null, 2)}
-        </pre>
+
     </>
 }
