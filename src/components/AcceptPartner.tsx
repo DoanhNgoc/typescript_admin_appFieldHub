@@ -70,7 +70,7 @@ export default function AcceptPartner({ user, sport, onAccepted }: values) {
                             {sport.length !== 0 ? (
                                 sport.map((item: any, key: number) => (
                                     <span key={key}>
-                                        {item.sportDoc.name}
+                                        {item?.sportDoc?.name}
                                         {key < sport.length - 1 ? ", " : ""}
                                     </span>
                                 ))

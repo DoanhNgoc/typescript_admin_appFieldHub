@@ -34,11 +34,11 @@ export default function ItemPedingApproval({ user, onAccepted }: any) {
                             {/* thông tin của doanh nghiệp */}
                             <div className="profileUser border-bottom border-black px-2 ">
                                 <div>
-                                    <p className=" fw-bold p-0 my-1">Họ và tên: {user ? user.name : <span className="text-small text-secondary">chưa xác định</span>}</p>
-                                    <p className=" fw-bold p-0 my-1">Ngày sinh: {user.dob !== null ? <FormatDate timestamp={user.dob} /> : <span className="text-small text-secondary">.. / .. /....</span>}</p>
-                                    <p className=" fw-bold p-0 my-1">Giới tính: {user.gender !== "" ? user.gender : <span className="text-small text-secondary">chưa xác định</span>}</p>
-                                    <p className=" fw-bold p-0 my-1">Địa chỉ: {user.address !== "" ? user.address : <span className="text-small text-secondary">chưa xác định</span>}</p>
-                                    <p className=" fw-bold p-0 my-1">Số điện thoại: {user.phone !== "" ? user.phone : <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                    <p className=" fw-bold p-0 my-1">Họ và tên: {user ? user?.name : <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                    <p className=" fw-bold p-0 my-1">Ngày sinh: {user?.dob !== null ? <FormatDate timestamp={user.dob} /> : <span className="text-small text-secondary">.. / .. /....</span>}</p>
+                                    <p className=" fw-bold p-0 my-1">Giới tính: {user?.gender !== "" ? user.gender : <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                    <p className=" fw-bold p-0 my-1">Địa chỉ: {user?.address !== "" ? user.address : <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                    <p className=" fw-bold p-0 my-1">Số điện thoại: {user?.phone !== "" ? user.phone : <span className="text-small text-secondary">chưa xác định</span>}</p>
                                 </div>
 
                             </div>
@@ -46,26 +46,24 @@ export default function ItemPedingApproval({ user, onAccepted }: any) {
                             {/*hiển thị thông tin sân dưới dạng small phone*/}
                             <div className="profileFields border-bottom border-black px-2 d-block d-md-none">
                                 <div>
-                                    <p className="fw-bold p-0 my-1">Tên trụ sở: {user.nameStore !== "" ? user.nameStore : <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                    <p className="fw-bold p-0 my-1">Tên trụ sở: {user?.nameStore !== "" ? user.nameStore : <span className="text-small text-secondary">chưa xác định</span>}</p>
                                     <p className="fw-bold p-0 my-1">
                                         Mô hình hoạt động:
                                         {sportsArray.length !== 0 ? sportsArray.map((item: any, key: number) => (
-                                            <span
-                                                key={key}
-                                            >
-                                                {item.sportDoc.name}{key < sportsArray.length - 1 ? ", " : ""}
+                                            <span key={key}>
+                                                {item?.sportDoc?.name ?? "chưa xác định"}
+                                                {key < sportsArray.length - 1 ? ", " : ""}
                                             </span>
-                                        ))
-                                            :
+                                        )) :
                                             <span className="text-small text-secondary">chưa xác định</span>}
                                     </p>
                                     <p className="fw-bold p-0 my-1">Thông tin:</p>
                                     <div className="row">
                                         {
                                             sportsArray.length !== 0 ? sportsArray.map((item: any, key: number) => <div key={key} className="col-12 col-md-6">
-                                                <p className="fw-bold p-0 my-1">Mô hình: {item.sportDoc.name || <span className="text-small text-secondary">chưa xác định</span>}</p>
-                                                <p className="fw-bold p-0 my-1">Số lượng: {item.count}</p>
-                                                <p className="fw-bold p-0 my-1">Địa chỉ: {item.address || <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                                <p className="fw-bold p-0 my-1">Mô hình: {item?.sportDoc?.name || <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                                <p className="fw-bold p-0 my-1">Số lượng: {item?.count}</p>
+                                                <p className="fw-bold p-0 my-1">Địa chỉ: {item?.address || <span className="text-small text-secondary">chưa xác định</span>}</p>
                                             </div>)
                                                 :
                                                 <span className="text-small text-secondary">chưa xác định</span>
@@ -142,7 +140,7 @@ export default function ItemPedingApproval({ user, onAccepted }: any) {
                                         <span
                                             key={key}
                                         >
-                                            {item.sportDoc.name}{key < sportsArray.length - 1 ? ", " : ""}
+                                            {item?.sportDoc?.name}{key < sportsArray.length - 1 ? ", " : ""}
                                         </span>
                                     ))
                                         :
@@ -152,9 +150,9 @@ export default function ItemPedingApproval({ user, onAccepted }: any) {
                                     <div className="row">
                                         {
                                             sportsArray.length !== 0 ? sportsArray.map((item: any, key: number) => <div key={key} className="col-12 col-md-6">
-                                                <p className="fw-bold p-0 my-1">Mô hình: {item.sportDoc.name || <span className="text-small text-secondary">chưa xác định</span>}</p>
-                                                <p className="fw-bold p-0 my-1">Số lượng: {item.count}</p>
-                                                <p className="fw-bold p-0 my-1">Địa chỉ: {item.address || <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                                <p className="fw-bold p-0 my-1">Mô hình: {item?.sportDoc?.name || <span className="text-small text-secondary">chưa xác định</span>}</p>
+                                                <p className="fw-bold p-0 my-1">Số lượng: {item?.count}</p>
+                                                <p className="fw-bold p-0 my-1">Địa chỉ: {item?.address || <span className="text-small text-secondary">chưa xác định</span>}</p>
                                             </div>)
                                                 :
                                                 <span className="text-small text-secondary">Chưa có sân</span>
@@ -168,16 +166,14 @@ export default function ItemPedingApproval({ user, onAccepted }: any) {
                                     Giấy phép <span className="d-none d-md-inline-block">kinh doanh</span>
                                 </p>
                                 <div className="m-2 d-flex justify-content-center">
-                                    <img src={user.documentInfo.business_license_image !== "" && user ? user.documentInfo.business_license_image : "https://ketoanlacviet.vn/wp-content/uploads/2024/08/mau-giay-chung-nhan-dang-ky-doanh-nghiep-2024.png"} className="rounded float-start w-75 m-1 ms-0" alt="..."></img>
+                                    <img src={user?.documentInfo?.business_license_image !== "" && user ? user.documentInfo.business_license_image : "https://ketoanlacviet.vn/wp-content/uploads/2024/08/mau-giay-chung-nhan-dang-ky-doanh-nghiep-2024.png"} className="rounded float-start w-75 m-1 ms-0" alt="..."></img>
                                 </div>
                             </div>
 
                         </div>
                     </div>
                 </div>
-                <pre>
-                    {JSON.stringify(user, null, 2)}
-                </pre>
+
             </div>}
 
     </div>
